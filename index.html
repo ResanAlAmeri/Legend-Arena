@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legend Arena</title>
+<style>
+body{
+margin:0;
+background:#1a1a1a;
+font-family:Arial,sans-serif;
+color:#fff;
+text-align:center;
+}
+h1{
+margin:20px 0;
+}
+#game{
+width:320px;
+height:500px;
+background:#333;
+margin:auto;
+position:relative;
+overflow:hidden;
+border-radius:12px;
+}
+#player{
+position:absolute;
+width:40px;
+height:40px;
+background:#00ff66;
+left:140px;
+top:440px;
+border-radius:8px;
+}
+.gem{
+position:absolute;
+width:20px;
+height:20px;
+background:gold;
+border-radius:50%;
+}
+button{
+margin:10px;
+padding:15px 25px;
+font-size:20px;
+border:none;
+border-radius:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>Legend Arena</h1>
+
+<h2>💎 Gems: <span id="score">0</span></h2>
+
+<div id="game">
+<div id="player"></div>
+</div>
+
+<div>
+<button onclick="left()">⬅️</button>
+<button onclick="right()">➡️</button>
+</div>
+
+<script>
+let x=140;
+let score=0;
+
+const player=document.getElementById("player");
+const game=document.getElementById("game");
+
+function left(){
+if(x>0){
+x-=20;
+player.style.left=x+"px";
+}
+}
+
+function right(){
+if(x<280){
+x+=20;
+player.style.left=x+"px";
+}
+}
+
+function gem(){
+
+const g=document.createElement("div");
+g.className="gem";
+
+const gx=Math.random()*300;
+
+g.style.left=gx+"px";
+g.style.top="0px";
+
+game.appendChild(g);
+
+let y=0;
+
+const fall=setInterval(()=>{
+
+y+=4;
+
+g.style.top=y+"px";
+
+if(y>420 && Math.abs(gx-x)<30){
+
+score++;
+document.getElementById("score").innerText=score;
+
+clearInterval(fall);
+g.remove();
+
+}
+
+if(y>500){
+
+clearInterval(fall);
+g.remove();
+
+}
+
+},30);
+
+}
+
+setInterval(gem,1000);
+
+</script>
+
+</body>
+</html>
