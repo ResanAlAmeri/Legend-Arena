@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  >
+
+  <title>Legend Arena – Stadium Edition</title>
+
+  <style>
+    :root {
+      --night: #010713;
+      --navy: #031a3d;
+      --blue: #126fce;
+      --light-blue: #5fc5ff;
+      --gold: #ffd451;
+      --dark-gold: #925800;
+      --purple: #914dff;
+      --dark-purple: #35106f;
+      --grass-dark: #08723a;
+      --grass-light: #15994e;
+      --white: #ffffff;
+      --danger: #ef4554;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(
+          circle at 50% -10%,
+          #1761b8 0%,
+          var(--navy) 42%,
+          var(--night) 100%
+        );
+      overscroll-behavior: none;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 16px 14px 30px;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo-card,
+    .menu-card {
+      width: min(400px, 96vw);
+      overflow: hidden;
+      border: 3px solid var(--gold);
+      border-radius: 26px;
+      text-align: center;
+      background:
+        linear-gradient(
+          160deg,
+          rgba(18, 84, 170, 0.98),
+          rgba(2, 15, 40, 0.98)
+        );
+      box-shadow:
+        0 18px 42px rgba(0, 0, 0, 0.5),
+        inset 0 0 25px rgba(255, 212, 81, 0.15);
+    }
+
+    .logo-card {
+      position: relative;
+      margin: 8px 0 18px;
+      padding: 24px 16px;
+    }
+
+    .logo-card::before,
+    .logo-card::after {
+      content: "";
+      position: absolute;
+      top: -40px;
+      width: 90px;
+      height: 190px;
+      opacity: 0.24;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,0.9),
+          transparent
+        );
+      transform: rotate(20deg);
+      pointer-events: none;
+    }
+
+    .logo-card::before {
+      left: 15px;
+    }
+
+    .logo-card::after {
+      right: 15px;
+      transform: rotate(-20deg);
+    }
+
+    .menu-card {
+      padding: 21px;
+    }
+
+    .logo-icon {
+      position: relative;
+      z-index: 2;
+      font-size: 58px;
+      filter:
+        drop-shadow(0 7px 7px rgba(0,0,0,0.45));
+    }
+
+    .logo-card h1 {
+      position: relative;
+      z-index: 2;
+      margin: 3px 0 0;
+      color: var(--gold);
+      font-size: 34px;
+      letter-spacing: 2px;
+      text-shadow:
+        0 4px 0 #654000,
+        0 0 20px rgba(255, 212, 81, 0.35);
+    }
+
+    .logo-card p,
+    .description {
+      position: relative;
+      z-index: 2;
+      color: #dceeff;
+      line-height: 1.45;
+    }
+
+    .hero-title {
+      margin: 0;
+      color: var(--gold);
+      font-size: 30px;
+    }
+
+    .menu-button {
+      width: 100%;
+      min-height: 58px;
+      margin: 8px 0;
+      padding: 14px 16px;
+      border: 2px solid #fff1ab;
+      border-radius: 17px;
+      color: #081a36;
+      background:
+        linear-gradient(
+          180deg,
+          #ffe77c,
+          #e5a000
+        );
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow:
+        0 7px 0 var(--dark-gold),
+        0 12px 20px rgba(0, 0, 0, 0.32);
+    }
+
+    .menu-button:active {
+      transform: translateY(5px);
+      box-shadow:
+        0 2px 0 var(--dark-gold),
+        0 6px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .menu-button.secondary {
+      border-color: #c3e3ff;
+      color: white;
+      background:
+        linear-gradient(
+          180deg,
+          #3497ef,
+          #093e8c
+        );
+      box-shadow:
+        0 7px 0 #05255a,
+        0 12px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .top-bar {
+      width: min(420px, 96vw);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+
+    .stat-box {
+      min-height: 44px;
+      padding: 10px 8px;
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(9, 50, 105, 0.96),
+          rgba(2, 16, 42, 0.96)
+        );
+      font-size: 15px;
+      font-weight: 900;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
+    .stat-box:last-child {
+      text-align: right;
+    }
+
+    .game-title {
+      margin: 0;
+      color: var(--gold);
+      font-size: 18px;
+      white-space: nowrap;
+      text-shadow: 0 2px 0 #634000;
+    }
+
+    .bar-label {
+      width: min(400px, 94vw);
+      margin: 5px 0 4px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .bar {
+      width: min(400px, 94vw);
+      height: 21px;
+      overflow: hidden;
+      border: 3px solid #eef6ff;
+      border-radius: 999px;
+      background: #301015;
+      box-shadow:
+        inset 0 2px 5px rgba(0,0,0,0.55);
+    }
+
+    .bar-fill {
+      height: 100%;
+      transition: width 0.25s ease;
+    }
+
+    #health-fill {
+      width: 100%;
+      background:
+        linear-gradient(
+          90deg,
+          #23bb58,
+          #9aff79
+        );
+    }
+
+    #ultimate-fill {
+      width: 0%;
+      background:
+        linear-gradient(
+          90deg,
+          #35b5ff,
+          #bd5fff
+        );
+    }
+
+    #message {
+      width: min(400px, 94vw);
+      min-height: 24px;
+      margin: 9px 0;
+      text-align: center;
+      color: #fff0ae;
+      font-weight: 900;
+    }
+
+    .stadium {
+      position: relative;
+      width: min(410px, 96vw);
+      padding: 42px 10px 10px;
+      border: 4px solid #bdcce0;
+      border-radius: 29px;
+      background:
+        linear-gradient(
+          180deg,
+          #071a35 0 34px,
+          #172e4d 34px 42px,
+          transparent 42px
+        );
+      box-shadow:
+        0 20px 45px rgba(0, 0, 0, 0.55);
+    }
+
+    .crowd {
+      position: absolute;
+      top: 7px;
+      left: 12px;
+      right: 12px;
+      height: 27px;
+      overflow: hidden;
+      border-radius: 13px 13px 5px 5px;
+      background:
+        radial-gradient(circle, #ffdc4d 0 2px, transparent 3px)
+        0 0 / 17px 13px,
+        radial-gradient(circle, #52b8ff 0 2px, transparent 3px)
+        8px 5px / 19px 14px,
+        radial-gradient(circle, #ff5d6e 0 2px, transparent 3px)
+        3px 1px / 23px 15px,
+        #102846;
+      box-shadow:
+        inset 0 -5px 8px rgba(0,0,0,0.45);
+    }
+
+    .floodlight {
+      position: absolute;
+      top: 27px;
+      width: 64px;
+      height: 95px;
+      opacity: 0.22;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,0.95),
+          transparent
+        );
+      clip-path:
+        polygon(40% 0, 60% 0, 100% 100%, 0 100%);
+      z-index: 6;
+    }
+
+    .floodlight.left {
+      left: 0;
+      transform: rotate(10deg);
+    }
+
+    .floodlight.right {
+      right: 0;
+      transform: rotate(-10deg);
+    }
+
+    #game {
+      position: relative;
+      width: 100%;
+      height: min(550px, 59vh);
+      min-height: 430px;
+      overflow: hidden;
+      border: 4px solid #f2f6ff;
+      border-radius: 20px;
+      background:
+        linear-gradient(
+          90deg,
+          transparent 49.35%,
+          rgba(255,255,255,0.84) 49.35%,
+          rgba(255,255,255,0.84) 50.65%,
+          transparent 50.65%
+        ),
+        radial-gradient(
+          circle at center,
+          transparent 0 48px,
+          rgba(255,255,255,0.82) 49px 53px,
+          transparent 54px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          var(--grass-dark) 0 58px,
+          var(--grass-light) 58px 116px
+        );
+      box-shadow:
+        inset 0 0 45px rgba(0,0,0,0.25);
+      touch-action: none;
+    }
+
+    #game::before,
+    #game::after {
+      content: "";
+      position: absolute;
+      left: 24%;
+      width: 52%;
+      height: 70px;
+      border: 3px solid rgba(255,255,255,0.82);
+      pointer-events: none;
+    }
+
+    #game::before {
+      top: -3px;
+      border-top: 0;
+    }
+
+    #game::after {
+      bottom: -3px;
+      border-bottom: 0;
+    }
+        #hero {
+      position: absolute;
+      width: 58px;
+      height: 72px;
+      z-index: 10;
+      border: 3px solid #e5f4ff;
+      border-radius: 27px 27px 18px 18px;
+      background:
+        radial-gradient(
+          circle at 50% 17%,
+          #efb982 0 12px,
+          transparent 13px
+        ),
+        linear-gradient(
+          180deg,
+          #4ab5ff 0 27%,
+          #116dcc 27% 58%,
+          #082a65 58% 100%
+        );
+      box-shadow:
+        0 10px 14px rgba(0,0,0,0.38),
+        0 0 18px rgba(65,172,255,0.7);
+      transition:
+        left 0.07s linear,
+        transform 0.15s ease;
+    }
+
+    #hero::before {
+      content: "AERO";
+      position: absolute;
+      top: 33px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: white;
+    }
+
+    #hero::after {
+      content: "";
+      position: absolute;
+      left: 10px;
+      bottom: -10px;
+      width: 32px;
+      height: 11px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.32);
+      z-index: -1;
+    }
+
+    #hero.hit {
+      animation: hitFlash 0.18s linear 3;
+    }
+
+    #hero.dashing {
+      transform: scale(1.12) rotate(3deg);
+      filter:
+        drop-shadow(0 0 18px #7dd6ff)
+        drop-shadow(0 0 28px #ffffff);
+    }
+
+    #hero.ultimate {
+      animation: ultimateGlow 0.5s alternate infinite;
+    }
+
+    .coin {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      z-index: 5;
+      border: 3px solid #fff4b0;
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle at 34% 27%,
+          #fffbd0 0 14%,
+          transparent 15%
+        ),
+        linear-gradient(
+          145deg,
+          #ffe97f,
+          #ca7b00
+        );
+      box-shadow:
+        0 0 18px rgba(255,220,79,0.95),
+        inset 0 0 0 3px rgba(125,70,0,0.4);
+      animation: coinSpin 0.8s alternate infinite;
+    }
+
+    .coin::after {
+      content: "L";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #623500;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .enemy {
+      position: absolute;
+      width: 54px;
+      height: 66px;
+      z-index: 7;
+      border: 3px solid #ffdede;
+      border-radius: 25px 25px 17px 17px;
+      background:
+        radial-gradient(
+          circle at 50% 17%,
+          #d99b70 0 11px,
+          transparent 12px
+        ),
+        linear-gradient(
+          180deg,
+          #ff6a75 0 28%,
+          #df3546 28% 58%,
+          #75121e 58% 100%
+        );
+      box-shadow:
+        0 9px 14px rgba(0,0,0,0.38),
+        0 0 12px rgba(255,70,80,0.45);
+    }
+
+    .enemy::before {
+      content: "RIVAL";
+      position: absolute;
+      top: 33px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 900;
+      color: white;
+    }
+
+    .enemy::after {
+      content: "";
+      position: absolute;
+      left: 10px;
+      bottom: -9px;
+      width: 30px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.3);
+      z-index: -1;
+    }
+
+    .effect {
+      position: absolute;
+      z-index: 20;
+      color: white;
+      font-size: 25px;
+      font-weight: 900;
+      pointer-events: none;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      animation: riseEffect 0.7s ease-out forwards;
+    }
+
+    .controller-panel {
+      width: min(410px, 96vw);
+      margin-top: 14px;
+      padding: 14px;
+      border: 2px solid rgba(175,220,255,0.75);
+      border-radius: 28px;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(9,48,103,0.96),
+          rgba(2,16,42,0.98)
+        );
+      box-shadow:
+        0 14px 30px rgba(0,0,0,0.42),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
+    .movement-controls {
+      display: grid;
+      grid-template-columns: 88px 1fr 88px;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .round-control {
+      width: 82px;
+      height: 82px;
+      justify-self: center;
+      border: 4px solid #d5efff;
+      border-radius: 50%;
+      color: white;
+      background:
+        radial-gradient(
+          circle at 35% 25%,
+          #6fd0ff,
+          #1677d4 45%,
+          #06346f 76%
+        );
+      font-size: 35px;
+      font-weight: 900;
+      box-shadow:
+        0 9px 0 #031c44,
+        0 14px 22px rgba(0,0,0,0.4),
+        inset 0 3px 5px rgba(255,255,255,0.35);
+    }
+
+    .round-control:active {
+      transform: translateY(6px) scale(0.96);
+      box-shadow:
+        0 3px 0 #031c44,
+        0 7px 12px rgba(0,0,0,0.35);
+    }
+
+    .dash-control {
+      min-height: 72px;
+      border: 4px solid #fff2ab;
+      border-radius: 22px;
+      color: #152448;
+      background:
+        linear-gradient(
+          180deg,
+          #fff294,
+          #ffc937 45%,
+          #d78900
+        );
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow:
+        0 9px 0 #865000,
+        0 14px 22px rgba(0,0,0,0.4),
+        inset 0 3px 5px rgba(255,255,255,0.45);
+    }
+
+    .dash-control:active {
+      transform: translateY(6px) scale(0.97);
+      box-shadow:
+        0 3px 0 #865000,
+        0 7px 12px rgba(0,0,0,0.3);
+    }
+
+    .ultimate-control {
+      width: 100%;
+      min-height: 66px;
+      margin-top: 15px;
+      border: 4px solid #e9d7ff;
+      border-radius: 22px;
+      color: white;
+      background:
+        linear-gradient(
+          180deg,
+          #c981ff,
+          var(--purple),
+          var(--dark-purple)
+        );
+      font-size: 19px;
+      font-weight: 900;
+      box-shadow:
+        0 8px 0 #260b58,
+        0 13px 21px rgba(0,0,0,0.4),
+        inset 0 3px 5px rgba(255,255,255,0.35);
+    }
+
+    .ultimate-control:active:not(:disabled) {
+      transform: translateY(6px);
+      box-shadow:
+        0 2px 0 #260b58,
+        0 6px 11px rgba(0,0,0,0.3);
+    }
+
+    .ultimate-control:disabled {
+      opacity: 0.48;
+      filter: grayscale(0.35);
+    }
+
+    .screen-shake {
+      animation: screenShake 0.28s linear;
+    }
+
+    @keyframes hitFlash {
+      0%, 100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    @keyframes ultimateGlow {
+      from {
+        box-shadow:
+          0 0 15px #64caff,
+          0 0 25px #8d72ff;
+      }
+
+      to {
+        box-shadow:
+          0 0 31px #ffffff,
+          0 0 50px #b56bff;
+      }
+    }
+
+    @keyframes coinSpin {
+      from {
+        transform: rotateY(0deg) scale(1);
+      }
+
+      to {
+        transform: rotateY(60deg) scale(1.08);
+      }
+    }
+
+    @keyframes riseEffect {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-46px) scale(1.4);
+      }
+    }
+
+    @keyframes screenShake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-8px);
+      }
+
+      50% {
+        transform: translateX(8px);
+      }
+
+      75% {
+        transform: translateX(-5px);
+      }
+    }
+
+    @media (max-height: 740px) {
+      #game {
+        height: 410px;
+        min-height: 390px;
+      }
+
+      .round-control {
+        width: 70px;
+        height: 70px;
+      }
+
+      .movement-controls {
+        grid-template-columns: 75px 1fr 75px;
+      }
+
+      .dash-control {
+        min-height: 62px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main id="menu-screen" class="screen active">
+
+    <section class="logo-card">
+      <div class="logo-icon">🛡️⚽</div>
+      <h1>LEGEND ARENA</h1>
+      <p>Stadium Edition</p>
+    </section>
+
+    <section class="menu-card">
+
+      <h2 class="hero-title">AERO</h2>
+
+      <p class="description">
+        Samla Legend Coins, undvik rivalerna och aktivera Storm Rush.
+        Det finns högst tre fiender samtidigt.
+      </p>
+
+      <button id="play-button" class="menu-button">
+        ▶ SPELA
+      </button>
+
+      <button class="menu-button secondary">
+        🦸 HJÄLTAR – KOMMER SENARE
+      </button>
+
+      <button class="menu-button secondary">
+        🎨 SKINS – KOMMER SENARE
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <main id="game-screen" class="screen">
+
+    <header class="top-bar">
+
+      <div class="stat-box">
+        🪙 <span id="coin-counter">0</span>
+      </div>
+
+      <h2 class="game-title">
+        LEGEND ARENA
+      </h2>
+
+      <div class="stat-box">
+        Poäng: <span id="score">0</span>
+      </div>
+
+    </header>
+
+    <div class="bar-label">❤️ LIV</div>
+
+    <div class="bar">
+      <div id="health-fill" class="bar-fill"></div>
+    </div>
+
+    <div class="bar-label">🌪️ ULTIMATE</div>
+
+    <div class="bar">
+      <div id="ultimate-fill" class="bar-fill"></div>
+    </div>
+
+    <p id="message">
+      Samla Legend Coins och undvik rivalerna!
+    </p>
+
+    <section class="stadium">
+
+      <div class="crowd"></div>
+      <div class="floodlight left"></div>
+      <div class="floodlight right"></div>
+
+      <section id="game">
+        <div id="hero"></div>
+      </section>
+
+    </section>
+
+    <section class="controller-panel">
+
+      <div class="movement-controls">
+
+        <button
+          id="left-button"
+          class="round-control"
+          aria-label="Gå vänster"
+        >
+          ◀
+        </button>
+
+        <button
+          id="dash-button"
+          class="dash-control"
+        >
+          ⚡ DASH
+        </button>
+
+        <button
+          id="right-button"
+          class="round-control"
+          aria-label="Gå höger"
+        >
+          ▶
+        </button>
+
+      </div>
+
+      <button
+        id="ultimate-button"
+        class="ultimate-control"
+        disabled
+      >
+        🌪️ ULTIMATE 0%
+      </button>
+
+    </section>
+
+    <button
+      id="back-button"
+      class="menu-button secondary"
+    >
+      ← TILL MENYN
+    </button>
+
+  </main>
+
+
+  <main id="game-over-screen" class="screen">
+
+    <section class="logo-card">
+      <div class="logo-icon">💀</div>
+      <h1>GAME OVER</h1>
+    </section>
+
+    <section class="menu-card">
+
+      <p class="description">
+        Din poäng:
+        <strong id="final-score">0</strong>
+      </p>
+
+      <p class="description">
+        High score:
+        <strong id="high-score">0</strong>
+      </p>
+
+      <p class="description">
+        Totala Legend Coins:
+        <strong id="total-coins">0</strong>
+      </p>
+
+      <button
+        id="restart-button"
+        class="menu-button"
+      >
+        🔄 SPELA IGEN
+      </button>
+
+      <button
+        id="home-button"
+        class="menu-button secondary"
+      >
+        🏠 TILL STARTMENYN
+      </button>
+
+    </section>
+
+  </main>
+
+  <script>
+        "use strict";
+
+    const menuScreen =
+      document.getElementById("menu-screen");
+
+    const gameScreen =
+      document.getElementById("game-screen");
+
+    const gameOverScreen =
+      document.getElementById("game-over-screen");
+
+    const playButton =
+      document.getElementById("play-button");
+
+    const restartButton =
+      document.getElementById("restart-button");
+
+    const backButton =
+      document.getElementById("back-button");
+
+    const homeButton =
+      document.getElementById("home-button");
+
+    const game =
+      document.getElementById("game");
+
+    const hero =
+      document.getElementById("hero");
+
+    const coinCounter =
+      document.getElementById("coin-counter");
+
+    const scoreDisplay =
+      document.getElementById("score");
+
+    const finalScoreDisplay =
+      document.getElementById("final-score");
+
+    const highScoreDisplay =
+      document.getElementById("high-score");
+
+    const totalCoinsDisplay =
+      document.getElementById("total-coins");
+
+    const healthFill =
+      document.getElementById("health-fill");
+
+    const ultimateFill =
+      document.getElementById("ultimate-fill");
+
+    const message =
+      document.getElementById("message");
+
+    const leftButton =
+      document.getElementById("left-button");
+
+    const rightButton =
+      document.getElementById("right-button");
+
+    const dashButton =
+      document.getElementById("dash-button");
+
+    const ultimateButton =
+      document.getElementById("ultimate-button");
+
+
+    const HERO_WIDTH = 58;
+    const HERO_HEIGHT = 72;
+    const NORMAL_SPEED = 24;
+    const DASH_DISTANCE = 100;
+
+    const MAX_ENEMIES = 3;
+    const START_ENEMY_SPEED = 1.1;
+    const ENEMY_INTERVAL = 4200;
+
+    let heroX = 0;
+    let heroY = 0;
+    let lastDirection = 1;
+
+    let matchCoins = 0;
+    let score = 0;
+    let health = 100;
+    let ultimateCharge = 0;
+
+    let highScore =
+      Number(
+        localStorage.getItem(
+          "legendArenaStadiumHighScore"
+        )
+      ) || 0;
+
+    let totalCoins =
+      Number(
+        localStorage.getItem(
+          "legendArenaStadiumCoins"
+        )
+      ) || 0;
+
+    let enemySpeed = START_ENEMY_SPEED;
+
+    let gameRunning = false;
+    let dashReady = true;
+    let ultimateActive = false;
+    let invincible = false;
+
+    let coinTimer = null;
+    let enemyTimer = null;
+    let scoreTimer = null;
+    let animationFrame = null;
+
+
+    function showScreen(screen) {
+      menuScreen.classList.remove("active");
+      gameScreen.classList.remove("active");
+      gameOverScreen.classList.remove("active");
+
+      screen.classList.add("active");
+    }
+
+
+    function startGame() {
+      stopTimers();
+      removeObjects();
+
+      matchCoins = 0;
+      score = 0;
+      health = 100;
+      ultimateCharge = 0;
+      enemySpeed = START_ENEMY_SPEED;
+
+      gameRunning = true;
+      dashReady = true;
+      ultimateActive = false;
+      invincible = false;
+
+      coinCounter.textContent = "0";
+      scoreDisplay.textContent = "0";
+
+      dashButton.disabled = false;
+      dashButton.textContent = "⚡ DASH";
+
+      updateHealth();
+      updateUltimate();
+
+      showScreen(gameScreen);
+
+      requestAnimationFrame(() => {
+        resetHero();
+
+        coinTimer =
+          setInterval(createCoin, 1300);
+
+        enemyTimer =
+          setInterval(createEnemy, ENEMY_INTERVAL);
+
+        scoreTimer =
+          setInterval(updateScore, 1000);
+
+        animationFrame =
+          requestAnimationFrame(gameLoop);
+      });
+
+      message.textContent =
+        "Samla Legend Coins och undvik rivalerna!";
+    }
+
+
+    function updateScore() {
+      if (!gameRunning) return;
+
+      score++;
+
+      scoreDisplay.textContent =
+        String(score);
+
+      if (score % 40 === 0) {
+        enemySpeed += 0.04;
+
+        message.textContent =
+          "Rivalerna blev lite snabbare!";
+
+        setTimeout(() => {
+          if (gameRunning) {
+            message.textContent =
+              "Fortsätt kämpa!";
+          }
+        }, 1000);
+      }
+    }
+
+
+    function resetHero() {
+      heroX =
+        game.clientWidth / 2 -
+        HERO_WIDTH / 2;
+
+      heroY =
+        game.clientHeight -
+        HERO_HEIGHT -
+        26;
+
+      updateHeroPosition();
+    }
+
+
+    function updateHeroPosition() {
+      hero.style.left = heroX + "px";
+      hero.style.top = heroY + "px";
+    }
+
+
+    function moveHero(direction) {
+      if (!gameRunning) return;
+
+      lastDirection = direction;
+
+      const speed =
+        ultimateActive
+          ? NORMAL_SPEED * 1.7
+          : NORMAL_SPEED;
+
+      const maxX =
+        game.clientWidth - HERO_WIDTH;
+
+      heroX += direction * speed;
+
+      heroX =
+        Math.max(
+          0,
+          Math.min(heroX, maxX)
+        );
+
+      updateHeroPosition();
+      checkCollisions();
+    }
+
+
+    function dash() {
+      if (
+        !gameRunning ||
+        !dashReady
+      ) {
+        return;
+      }
+
+      dashReady = false;
+      invincible = true;
+
+      dashButton.disabled = true;
+      dashButton.textContent = "LADDAR...";
+
+      hero.classList.add("dashing");
+
+      const maxX =
+        game.clientWidth - HERO_WIDTH;
+
+      heroX +=
+        lastDirection * DASH_DISTANCE;
+
+      heroX =
+        Math.max(
+          0,
+          Math.min(heroX, maxX)
+        );
+
+      updateHeroPosition();
+      checkCollisions();
+
+      setTimeout(() => {
+        hero.classList.remove("dashing");
+
+        if (!ultimateActive) {
+          invincible = false;
+        }
+      }, 350);
+
+      setTimeout(() => {
+        dashReady = true;
+        dashButton.disabled = false;
+        dashButton.textContent = "⚡ DASH";
+      }, 2000);
+    }
+
+
+    function createCoin() {
+      if (!gameRunning) return;
+
+      const coin =
+        document.createElement("div");
+
+      coin.className = "coin";
+
+      const x =
+        Math.random() *
+        (game.clientWidth - 32);
+
+      coin.dataset.x = String(x);
+      coin.dataset.y = "-42";
+
+      coin.style.left = x + "px";
+      coin.style.top = "-42px";
+
+      game.appendChild(coin);
+    }
+
+
+    function createEnemy() {
+      if (!gameRunning) return;
+
+      const enemies =
+        document.querySelectorAll(".enemy");
+
+      if (enemies.length >= MAX_ENEMIES) {
+        return;
+      }
+
+      const enemy =
+        document.createElement("div");
+
+      enemy.className = "enemy";
+
+      const x =
+        Math.random() *
+        (game.clientWidth - 54);
+
+      enemy.dataset.x = String(x);
+      enemy.dataset.y = "-76";
+
+      enemy.style.left = x + "px";
+      enemy.style.top = "-76px";
+
+      game.appendChild(enemy);
+    }
+
+
+    function gameLoop() {
+      if (!gameRunning) return;
+
+      moveCoins();
+      moveEnemies();
+      checkCollisions();
+
+      animationFrame =
+        requestAnimationFrame(gameLoop);
+    }
+
+
+    function moveCoins() {
+      document
+        .querySelectorAll(".coin")
+        .forEach((coin) => {
+          let y =
+            Number(coin.dataset.y);
+
+          y += 2.6;
+
+          coin.dataset.y = String(y);
+          coin.style.top = y + "px";
+
+          if (
+            y > game.clientHeight + 45
+          ) {
+            coin.remove();
+          }
+        });
+    }
+
+
+    function moveEnemies() {
+      document
+        .querySelectorAll(".enemy")
+        .forEach((enemy) => {
+          let x =
+            Number(enemy.dataset.x);
+
+          let y =
+            Number(enemy.dataset.y);
+
+          const heroCenter =
+            heroX + HERO_WIDTH / 2;
+
+          const enemyCenter =
+            x + 27;
+
+          if (enemyCenter < heroCenter) {
+            x += enemySpeed * 0.42;
+          } else {
+            x -= enemySpeed * 0.42;
+          }
+
+          y += enemySpeed;
+
+          enemy.dataset.x = String(x);
+          enemy.dataset.y = String(y);
+
+          enemy.style.left = x + "px";
+          enemy.style.top = y + "px";
+
+          if (
+            y > game.clientHeight + 85
+          ) {
+            enemy.remove();
+          }
+        });
+    }
+
+
+    function checkCollisions() {
+      document
+        .querySelectorAll(".coin")
+        .forEach((coin) => {
+          if (touching(hero, coin)) {
+            collectCoin(coin);
+          }
+        });
+
+      document
+        .querySelectorAll(".enemy")
+        .forEach((enemy) => {
+          if (touching(hero, enemy)) {
+            hitEnemy(enemy);
+          }
+        });
+    }
+
+
+    function collectCoin(coin) {
+      if (!coin.isConnected) return;
+
+      matchCoins++;
+
+      coinCounter.textContent =
+        String(matchCoins);
+
+      ultimateCharge =
+        Math.min(
+          100,
+          ultimateCharge + 20
+        );
+
+      createEffect(
+        coin.offsetLeft,
+        coin.offsetTop,
+        "+1"
+      );
+
+      coin.remove();
+      updateUltimate();
+
+      message.textContent =
+        "+1 Legend Coin!";
+    }
+
+
+    function hitEnemy(enemy) {
+      if (!enemy.isConnected) return;
+
+      if (ultimateActive) {
+        createEffect(
+          enemy.offsetLeft,
+          enemy.offsetTop,
+          "💥"
+        );
+
+        score += 5;
+
+        scoreDisplay.textContent =
+          String(score);
+
+        enemy.remove();
+        return;
+      }
+
+      if (invincible) return;
+
+      enemy.remove();
+      loseHealth(15);
+    }
+
+
+    function loseHealth(amount) {
+      if (
+        !gameRunning ||
+        invincible
+      ) {
+        return;
+      }
+
+      health =
+        Math.max(
+          0,
+          health - amount
+        );
+
+      updateHealth();
+
+      invincible = true;
+
+      hero.classList.add("hit");
+      game.classList.add("screen-shake");
+
+      message.textContent =
+        "Aero blev träffad!";
+
+      setTimeout(() => {
+        hero.classList.remove("hit");
+        game.classList.remove("screen-shake");
+      }, 350);
+
+      setTimeout(() => {
+        if (!ultimateActive) {
+          invincible = false;
+        }
+      }, 1200);
+
+      if (health <= 0) {
+        endGame();
+      }
+    }
+
+
+    function updateHealth() {
+      healthFill.style.width =
+        health + "%";
+
+      if (health > 60) {
+        healthFill.style.background =
+          "linear-gradient(90deg,#23bb58,#9aff79)";
+      } else if (health > 30) {
+        healthFill.style.background =
+          "linear-gradient(90deg,#ffd451,#ff991b)";
+      } else {
+        healthFill.style.background =
+          "linear-gradient(90deg,#ff4a58,#a90000)";
+      }
+    }
+
+
+    function updateUltimate() {
+      ultimateFill.style.width =
+        ultimateCharge + "%";
+
+      const ready =
+        ultimateCharge >= 100;
+
+      ultimateButton.disabled =
+        !ready;
+
+      ultimateButton.textContent =
+        ready
+          ? "🌪️ STORM RUSH"
+          : "🌪️ ULTIMATE " +
+            ultimateCharge +
+            "%";
+    }
+
+
+    function activateUltimate() {
+      if (
+        !gameRunning ||
+        ultimateActive ||
+        ultimateCharge < 100
+      ) {
+        return;
+      }
+
+      ultimateCharge = 0;
+      ultimateActive = true;
+      invincible = true;
+
+      hero.classList.add("ultimate");
+
+      updateUltimate();
+
+      ultimateButton.disabled = true;
+      ultimateButton.textContent =
+        "🌪️ AKTIV";
+
+      message.textContent =
+        "STORM RUSH AKTIVERAD!";
+
+      const magnetTimer =
+        setInterval(attractCoins, 40);
+
+      setTimeout(() => {
+        clearInterval(magnetTimer);
+
+        ultimateActive = false;
+        invincible = false;
+
+        hero.classList.remove("ultimate");
+
+        updateUltimate();
+
+        if (gameRunning) {
+          message.textContent =
+            "Storm Rush är slut!";
+        }
+      }, 5000);
+    }
+
+
+    function attractCoins() {
+      if (
+        !gameRunning ||
+        !ultimateActive
+      ) {
+        return;
+      }
+
+      const targetX =
+        heroX + HERO_WIDTH / 2;
+
+      const targetY =
+        heroY + HERO_HEIGHT / 2;
+
+      document
+        .querySelectorAll(".coin")
+        .forEach((coin) => {
+          let x =
+            Number(coin.dataset.x);
+
+          let y =
+            Number(coin.dataset.y);
+
+          const dx = targetX - x;
+          const dy = targetY - y;
+
+          const distance =
+            Math.sqrt(
+              dx * dx + dy * dy
+            );
+
+          if (
+            distance < 220 &&
+            distance > 0
+          ) {
+            x += (dx / distance) * 8;
+            y += (dy / distance) * 8;
+
+            coin.dataset.x = String(x);
+            coin.dataset.y = String(y);
+
+            coin.style.left = x + "px";
+            coin.style.top = y + "px";
+          }
+
+          if (touching(hero, coin)) {
+            collectCoin(coin);
+          }
+        });
+    }
+
+
+    function touching(first, second) {
+      const a =
+        first.getBoundingClientRect();
+
+      const b =
+        second.getBoundingClientRect();
+
+      return (
+        a.left < b.right &&
+        a.right > b.left &&
+        a.top < b.bottom &&
+        a.bottom > b.top
+      );
+    }
+
+
+    function createEffect(x, y, text) {
+      const effect =
+        document.createElement("div");
+
+      effect.className = "effect";
+      effect.textContent = text;
+
+      effect.style.left = x + "px";
+      effect.style.top = y + "px";
+
+      game.appendChild(effect);
+
+      setTimeout(() => {
+        effect.remove();
+      }, 700);
+    }
+
+
+    function endGame() {
+      if (!gameRunning) return;
+
+      gameRunning = false;
+      stopTimers();
+
+      if (score > highScore) {
+        highScore = score;
+
+        localStorage.setItem(
+          "legendArenaStadiumHighScore",
+          String(highScore)
+        );
+      }
+
+      totalCoins += matchCoins;
+
+      localStorage.setItem(
+        "legendArenaStadiumCoins",
+        String(totalCoins)
+      );
+
+      finalScoreDisplay.textContent =
+        String(score);
+
+      highScoreDisplay.textContent =
+        String(highScore);
+
+      totalCoinsDisplay.textContent =
+        String(totalCoins);
+
+      removeObjects();
+      showScreen(gameOverScreen);
+    }
+
+
+    function returnHome() {
+      gameRunning = false;
+
+      stopTimers();
+      removeObjects();
+
+      showScreen(menuScreen);
+    }
+
+
+    function stopTimers() {
+      clearInterval(coinTimer);
+      clearInterval(enemyTimer);
+      clearInterval(scoreTimer);
+
+      coinTimer = null;
+      enemyTimer = null;
+      scoreTimer = null;
+
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+    }
+
+
+    function removeObjects() {
+      document
+        .querySelectorAll(
+          ".coin, .enemy, .effect"
+        )
+        .forEach((object) => {
+          object.remove();
+        });
+    }
+
+
+    function pressAction(
+      element,
+      action
+    ) {
+      element.addEventListener(
+        "pointerdown",
+        (event) => {
+          event.preventDefault();
+          action();
+        }
+      );
+    }
+
+
+    playButton.addEventListener(
+      "click",
+      startGame
+    );
+
+    restartButton.addEventListener(
+      "click",
+      startGame
+    );
+
+    backButton.addEventListener(
+      "click",
+      returnHome
+    );
+
+    homeButton.addEventListener(
+      "click",
+      returnHome
+    );
+
+    pressAction(
+      leftButton,
+      () => moveHero(-1)
+    );
+
+    pressAction(
+      rightButton,
+      () => moveHero(1)
+    );
+
+    pressAction(
+      dashButton,
+      dash
+    );
+
+    pressAction(
+      ultimateButton,
+      activateUltimate
+    );
+
+
+    window.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "ArrowLeft") {
+          moveHero(-1);
+        }
+
+        if (event.key === "ArrowRight") {
+          moveHero(1);
+        }
+
+        if (event.code === "Space") {
+          event.preventDefault();
+          dash();
+        }
+
+        if (
+          event.key.toLowerCase() === "u"
+        ) {
+          activateUltimate();
+        }
+      }
+    );
+
+
+    window.addEventListener(
+      "resize",
+      () => {
+        if (gameRunning) {
+          resetHero();
+        }
+      }
+    );
+
+
+    highScoreDisplay.textContent =
+      String(highScore);
+
+    totalCoinsDisplay.textContent =
+      String(totalCoins);
+  </script>
+
+</body>
+</html>
