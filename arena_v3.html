@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>Legend Arena Alpha 3</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- STARTMENY -->
+  <main id="menu-screen" class="screen active">
+
+    <section class="menu-card">
+
+      <h1 class="menu-title">
+        🛡️ LEGEND ARENA
+      </h1>
+
+      <p class="menu-subtitle">
+        Alpha 3 – enklare och mer balanserad
+      </p>
+
+      <h2 class="menu-title">
+        AERO
+      </h2>
+
+      <p class="menu-subtitle">
+        Samla Legend Coins, undvik fiender och använd Storm Rush.
+      </p>
+
+      <button
+        id="play-button"
+        class="menu-button"
+      >
+        ▶ SPELA
+      </button>
+
+      <button class="menu-button secondary">
+        🦸 HJÄLTAR
+      </button>
+
+      <button class="menu-button secondary">
+        🎨 SKINS
+      </button>
+
+      <button class="menu-button secondary">
+        🏆 RANKING
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <!-- SPELSKÄRM -->
+  <main id="game-screen" class="screen">
+
+    <header class="top-bar">
+
+      <div class="stat-box">
+        🪙 <span id="coin-counter">0</span>
+      </div>
+
+      <h2 class="game-title">
+        LEGEND ARENA
+      </h2>
+
+      <div class="stat-box right">
+        Poäng: <span id="score">0</span>
+      </div>
+
+    </header>
+
+    <p class="message">
+      ❤️ LIV
+    </p>
+
+    <div class="health-bar">
+      <div
+        id="health-fill"
+        class="health-fill"
+      ></div>
+    </div>
+
+    <p class="message">
+      🌪️ ULTIMATE
+    </p>
+
+    <div class="health-bar">
+      <div
+        id="ultimate-fill"
+        class="health-fill"
+        style="width: 0%"
+      ></div>
+    </div>
+
+    <p
+      id="message"
+      class="message"
+    >
+      Samla Legend Coins och undvik fiender!
+    </p>
+
+    <section id="game">
+      <div
+        id="hero"
+        class="hero"
+      ></div>
+    </section>
+
+    <section class="controls">
+
+      <button
+        id="left-button"
+        class="control-button"
+      >
+        ◀
+      </button>
+
+      <button
+        id="dash-button"
+        class="control-button dash"
+      >
+        ⚡ DASH
+      </button>
+
+      <button
+        id="right-button"
+        class="control-button"
+      >
+        ▶
+      </button>
+
+    </section>
+
+    <button
+      id="ultimate-button"
+      class="menu-button"
+      disabled
+    >
+      🌪️ ULTIMATE 0%
+    </button>
+
+    <button
+      id="back-button"
+      class="menu-button secondary"
+    >
+      ← TILL MENYN
+    </button>
+
+  </main>
+
+
+  <!-- GAME OVER -->
+  <main id="game-over-screen" class="screen">
+
+    <section class="menu-card">
+
+      <h1 class="menu-title">
+        💀 GAME OVER
+      </h1>
+
+      <p class="menu-subtitle">
+        Din poäng:
+        <strong id="final-score">0</strong>
+      </p>
+
+      <p class="menu-subtitle">
+        High score:
+        <strong id="high-score">0</strong>
+      </p>
+
+      <p class="menu-subtitle">
+        Totala Legend Coins:
+        <strong id="total-coins">0</strong>
+      </p>
+
+      <button
+        id="restart-button"
+        class="menu-button"
+      >
+        🔄 SPELA IGEN
+      </button>
+
+      <button
+        class="menu-button secondary"
+        onclick="location.reload()"
+      >
+        🏠 TILL STARTMENYN
+      </button>
+
+    </section>
+
+  </main>
+
+  <script src="game_v3.js"></script>
+
+</body>
+</html>
