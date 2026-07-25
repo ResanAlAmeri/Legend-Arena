@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  >
+
+  <title>Legend Arena – Easy Edition</title>
+
+  <style>
+    :root {
+      --dark-blue: #03142f;
+      --blue: #0a3f8f;
+      --light-blue: #2c88e8;
+      --gold: #ffd34e;
+      --dark-gold: #8c5700;
+      --green: #158343;
+      --light-green: #22a954;
+      --white: #ffffff;
+      --red: #e83e4d;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, #1554aa, var(--dark-blue) 60%, #010611);
+      color: var(--white);
+      overscroll-behavior: none;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      touch-action: manipulation;
+      cursor: pointer;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 18px 14px 30px;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo {
+      width: min(390px, 96vw);
+      padding: 22px 16px;
+      margin: 8px 0 18px;
+      border: 3px solid var(--gold);
+      border-radius: 24px;
+      background:
+        linear-gradient(160deg, rgba(22, 87, 174, 0.98), rgba(2, 16, 43, 0.98));
+      text-align: center;
+      box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.45),
+        inset 0 0 22px rgba(255, 211, 78, 0.15);
+    }
+
+    .shield {
+      font-size: 54px;
+      margin-bottom: 4px;
+    }
+
+    .logo h1 {
+      margin: 0;
+      color: var(--gold);
+      font-size: 34px;
+      letter-spacing: 2px;
+      text-shadow: 0 4px 0 #624000;
+    }
+
+    .logo p {
+      margin: 10px 0 0;
+      color: #d9eaff;
+      font-weight: 700;
+    }
+
+    .card {
+      width: min(390px, 96vw);
+      padding: 20px;
+      border: 2px solid rgba(255, 211, 78, 0.65);
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(8, 47, 103, 0.96), rgba(2, 17, 44, 0.98));
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.4);
+      text-align: center;
+    }
+
+    .hero-name {
+      margin: 0;
+      color: var(--gold);
+      font-size: 29px;
+    }
+
+    .description {
+      color: #dcecff;
+      line-height: 1.45;
+    }
+
+    .menu-button {
+      width: 100%;
+      min-height: 58px;
+      margin: 8px 0;
+      padding: 13px 16px;
+      border: 2px solid #fff0a7;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffe16c, #d99400);
+      color: #071a37;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow:
+        0 6px 0 var(--dark-gold),
+        0 10px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .menu-button:active {
+      transform: translateY(4px);
+      box-shadow:
+        0 2px 0 var(--dark-gold),
+        0 5px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .menu-button.secondary {
+      border-color: #acd5ff;
+      background: linear-gradient(180deg, #3189e7, #0a3c88);
+      color: white;
+      box-shadow:
+        0 6px 0 #04275f,
+        0 10px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .menu-button:disabled {
+      opacity: 0.55;
+      filter: grayscale(0.35);
+    }
+
+    .top-bar {
+      width: min(420px, 96vw);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+
+    .stat {
+      min-height: 43px;
+      padding: 10px 8px;
+      border: 2px solid var(--gold);
+      border-radius: 13px;
+      background: rgba(2, 17, 44, 0.94);
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .stat:last-child {
+      text-align: right;
+    }
+
+    .game-heading {
+      margin: 0;
+      color: var(--gold);
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .bar-label {
+      width: min(390px, 94vw);
+      margin: 5px 0 4px;
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .bar {
+      width: min(390px, 94vw);
+      height: 20px;
+      overflow: hidden;
+      border: 3px solid #eef5ff;
+      border-radius: 999px;
+      background: #2c1013;
+    }
+
+    .bar-fill {
+      width: 100%;
+      height: 100%;
+      transition: width 0.25s ease;
+    }
+
+    #health-fill {
+      background: linear-gradient(90deg, #2cca61, #91ff78);
+    }
+
+    #ultimate-fill {
+      width: 0%;
+      background: linear-gradient(90deg, #29a4ff, #c87cff);
+    }
+
+    #message {
+      width: min(390px, 94vw);
+      min-height: 24px;
+      margin: 9px 0;
+      text-align: center;
+      color: #ffefad;
+      font-weight: 900;
+    }
+
+    #game {
+      position: relative;
+      width: min(390px, 94vw);
+      height: min(570px, 62vh);
+      min-height: 450px;
+      overflow: hidden;
+      border: 5px solid var(--gold);
+      border-radius: 24px;
+      background:
+        linear-gradient(
+          90deg,
+          transparent 49.4%,
+          rgba(255,255,255,0.78) 49.4%,
+          rgba(255,255,255,0.78) 50.6%,
+          transparent 50.6%
+        ),
+        radial-gradient(
+          circle at center,
+          transparent 0 50px,
+          rgba(255,255,255,0.75) 51px 54px,
+          transparent 55px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          var(--green) 0 62px,
+          var(--light-green) 62px 124px
+        );
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.48),
+        inset 0 0 35px rgba(0, 0, 0, 0.18);
+      touch-action: none;
+    }
+
+    #game::before,
+    #game::after {
+      content: "";
+      position: absolute;
+      left: 25%;
+      width: 50%;
+      height: 68px;
+      border: 3px solid rgba(255,255,255,0.75);
+      pointer-events: none;
+    }
+
+    #game::before {
+      top: -3px;
+      border-top: 0;
+    }
+
+    #game::after {
+      bottom: -3px;
+      border-bottom: 0;
+    }
+
+    #hero {
+      position: absolute;
+      width: 54px;
+      height: 66px;
+      z-index: 10;
+      border: 3px solid #d8eeff;
+      border-radius: 25px 25px 17px 17px;
+      background:
+        radial-gradient(circle at 50% 17%, #efb682 0 11px, transparent 12px),
+        linear-gradient(180deg, #2689ff 0 55%, #092c6e 55% 100%);
+      box-shadow:
+        0 9px 13px rgba(0, 0, 0, 0.35),
+        0 0 17px rgba(50, 150, 255, 0.65);
+      transition: left 0.07s linear;
+    }
+
+    #hero::before {
+      content: "A";
+      position: absolute;
+      top: 29px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    #hero::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      bottom: -10px;
+      width: 32px;
+      height: 11px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: -1;
+    }
+
+    #hero.hit {
+      animation: hitFlash 0.18s linear 3;
+    }
+
+    #hero.dashing {
+      filter: drop-shadow(0 0 18px #8bd8ff);
+      transform: scale(1.1);
+    }
+
+    #hero.ultimate {
+      animation: ultimateGlow 0.5s alternate infinite;
+    }
+
+    .coin {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      z-index: 5;
+      border: 3px solid #fff2aa;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 34% 27%, #fffbc5 0 14%, transparent 15%),
+        linear-gradient(145deg, #ffe777, #c97a00);
+      box-shadow:
+        0 0 16px rgba(255, 216, 77, 0.95),
+        inset 0 0 0 3px rgba(126, 70, 0, 0.38);
+      animation: coinSpin 0.8s alternate infinite;
+    }
+
+    .coin::after {
+      content: "L";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #653700;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .enemy {
+      position: absolute;
+      width: 50px;
+      height: 60px;
+      z-index: 7;
+      border: 3px solid #ffd6d6;
+      border-radius: 23px 23px 16px 16px;
+      background:
+        radial-gradient(circle at 50% 17%, #da9b70 0 10px, transparent 11px),
+        linear-gradient(180deg, #f14d59 0 55%, #73121c 55% 100%);
+      box-shadow:
+        0 8px 13px rgba(0, 0, 0, 0.35),
+        0 0 10px rgba(255, 70, 70, 0.35);
+    }
+
+    .enemy::before {
+      content: "X";
+      position: absolute;
+      top: 28px;
+      width: 100%;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .effect {
+      position: absolute;
+      z-index: 20;
+      color: white;
+      font-size: 24px;
+      font-weight: 900;
+      pointer-events: none;
+      animation: riseEffect 0.7s ease-out forwards;
+    }
+
+    .controls {
+      width: min(390px, 94vw);
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 11px;
+      margin-top: 14px;
+    }
+
+    .control {
+      min-height: 62px;
+      border: 3px solid #cde5ff;
+      border-radius: 19px;
+      background: linear-gradient(180deg, #267aca, #072b66);
+      color: white;
+      font-size: 27px;
+      font-weight: 900;
+      box-shadow:
+        0 7px 0 #03183a,
+        0 11px 17px rgba(0, 0, 0, 0.3);
+    }
+
+    .control:active {
+      transform: translateY(4px);
+      box-shadow:
+        0 3px 0 #03183a,
+        0 6px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .control.dash {
+      border-color: #fff1a6;
+      background: linear-gradient(180deg, #ffe06b, #d68b00);
+      color: #102142;
+      font-size: 17px;
+    }
+
+    .screen-shake {
+      animation: screenShake 0.28s linear;
+    }
+
+    .small-note {
+      margin: 14px 0 0;
+      color: #c9ddf8;
+      font-size: 13px;
+    }
+
+    @keyframes hitFlash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    @keyframes ultimateGlow {
+      from {
+        box-shadow:
+          0 0 15px #64caff,
+          0 0 25px #8d72ff;
+      }
+      to {
+        box-shadow:
+          0 0 30px #ffffff,
+          0 0 48px #b56bff;
+      }
+    }
+
+    @keyframes coinSpin {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(55deg); }
+    }
+
+    @keyframes riseEffect {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-45px) scale(1.35);
+      }
+    }
+
+    @keyframes screenShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-5px); }
+    }
+
+    @media (max-height: 720px) {
+      .screen {
+        padding-top: 9px;
+      }
+
+      #game {
+        height: 440px;
+        min-height: 420px;
+      }
+
+      .control {
+        min-height: 55px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- STARTMENY -->
+  <main id="menu-screen" class="screen active">
+
+    <section class="logo">
+      <div class="shield">🛡️⚽</div>
+      <h1>LEGEND ARENA</h1>
+      <p>Easy Edition</p>
+    </section>
+
+    <section class="card">
+      <h2 class="hero-name">AERO</h2>
+
+      <p class="description">
+        Samla Legend Coins, undvik fiender och fyll Ultimate-mätaren.
+        Det kan finnas högst tre fiender samtidigt.
+      </p>
+
+      <button id="play-button" class="menu-button">
+        ▶ SPELA
+      </button>
+
+      <button class="menu-button secondary">
+        🦸 HJÄLTAR – KOMMER SENARE
+      </button>
+
+      <button class="menu-button secondary">
+        🎨 SKINS – KOMMER SENARE
+      </button>
+
+      <p class="small-note">
+        Nivåer lägger vi till i en senare uppdatering.
+      </p>
+    </section>
+
+  </main>
+
+
+  <!-- SPELSKÄRM -->
+  <main id="game-screen" class="screen">
+
+    <header class="top-bar">
+      <div class="stat">
+        🪙 <span id="coin-counter">0</span>
+      </div>
+
+      <h2 class="game-heading">LEGEND ARENA</h2>
+
+      <div class="stat">
+        Poäng: <span id="score">0</span>
+      </div>
+    </header>
+
+    <div class="bar-label">❤️ LIV</div>
+
+    <div class="bar">
+      <div id="health-fill" class="bar-fill"></div>
+    </div>
+
+    <div class="bar-label">🌪️ ULTIMATE</div>
+
+    <div class="bar">
+      <div id="ultimate-fill" class="bar-fill"></div>
+    </div>
+
+    <p id="message">
+      Samla Legend Coins och undvik fiender!
+    </p>
+
+    <section id="game">
+      <div id="hero"></div>
+    </section>
+
+    <section class="controls">
+      <button id="left-button" class="control">◀</button>
+      <button id="dash-button" class="control dash">⚡ DASH</button>
+      <button id="right-button" class="control">▶</button>
+    </section>
+
+    <button
+      id="ultimate-button"
+      class="menu-button"
+      disabled
+    >
+      🌪️ ULTIMATE 0%
+    </button>
+
+    <button id="back-button" class="menu-button secondary">
+      ← TILL MENYN
+    </button>
+
+  </main>
+
+
+  <!-- GAME OVER -->
+  <main id="game-over-screen" class="screen">
+
+    <section class="logo">
+      <div class="shield">💀</div>
+      <h1>GAME OVER</h1>
+    </section>
+
+    <section class="card">
+      <p class="description">
+        Din poäng:
+        <strong id="final-score">0</strong>
+      </p>
+
+      <p class="description">
+        High score:
+        <strong id="high-score">0</strong>
+      </p>
+
+      <p class="description">
+        Totala Legend Coins:
+        <strong id="total-coins">0</strong>
+      </p>
+
+      <button id="restart-button" class="menu-button">
+        🔄 SPELA IGEN
+      </button>
+
+      <button id="home-button" class="menu-button secondary">
+        🏠 TILL STARTMENYN
+      </button>
+    </section>
+
+  </main>
+
+
+  <script>
+    "use strict";
+
+    const menuScreen =
+      document.getElementById("menu-screen");
+
+    const gameScreen =
+      document.getElementById("game-screen");
+
+    const gameOverScreen =
+      document.getElementById("game-over-screen");
+
+    const playButton =
+      document.getElementById("play-button");
+
+    const restartButton =
+      document.getElementById("restart-button");
+
+    const backButton =
+      document.getElementById("back-button");
+
+    const homeButton =
+      document.getElementById("home-button");
+
+    const game =
+      document.getElementById("game");
+
+    const hero =
+      document.getElementById("hero");
+
+    const coinCounter =
+      document.getElementById("coin-counter");
+
+    const scoreDisplay =
+      document.getElementById("score");
+
+    const finalScoreDisplay =
+      document.getElementById("final-score");
+
+    const highScoreDisplay =
+      document.getElementById("high-score");
+
+    const totalCoinsDisplay =
+      document.getElementById("total-coins");
+
+    const healthFill =
+      document.getElementById("health-fill");
+
+    const ultimateFill =
+      document.getElementById("ultimate-fill");
+
+    const message =
+      document.getElementById("message");
+
+    const leftButton =
+      document.getElementById("left-button");
+
+    const rightButton =
+      document.getElementById("right-button");
+
+    const dashButton =
+      document.getElementById("dash-button");
+
+    const ultimateButton =
+      document.getElementById("ultimate-button");
+
+
+    const HERO_WIDTH = 54;
+    const HERO_HEIGHT = 66;
+    const NORMAL_SPEED = 24;
+    const DASH_DISTANCE = 95;
+
+    const MAX_ENEMIES = 3;
+    const START_ENEMY_SPEED = 1.1;
+    const START_ENEMY_INTERVAL = 4200;
+
+    let heroX = 0;
+    let heroY = 0;
+    let lastDirection = 1;
+
+    let matchCoins = 0;
+    let score = 0;
+    let health = 100;
+    let ultimateCharge = 0;
+
+    let highScore =
+      Number(
+        localStorage.getItem("legendArenaEasyHighScore")
+      ) || 0;
+
+    let totalCoins =
+      Number(
+        localStorage.getItem("legendArenaEasyCoins")
+      ) || 0;
+
+    let enemySpeed = START_ENEMY_SPEED;
+    let enemyInterval = START_ENEMY_INTERVAL;
+
+    let gameRunning = false;
+    let dashReady = true;
+    let ultimateActive = false;
+    let invincible = false;
+
+    let coinTimer = null;
+    let enemyTimer = null;
+    let scoreTimer = null;
+    let animationFrame = null;
+
+
+    function showScreen(screen) {
+      menuScreen.classList.remove("active");
+      gameScreen.classList.remove("active");
+      gameOverScreen.classList.remove("active");
+
+      screen.classList.add("active");
+    }
+
+
+    function startGame() {
+      stopTimers();
+      removeObjects();
+
+      matchCoins = 0;
+      score = 0;
+      health = 100;
+      ultimateCharge = 0;
+
+      enemySpeed = START_ENEMY_SPEED;
+      enemyInterval = START_ENEMY_INTERVAL;
+
+      gameRunning = true;
+      dashReady = true;
+      ultimateActive = false;
+      invincible = false;
+
+      coinCounter.textContent = "0";
+      scoreDisplay.textContent = "0";
+
+      dashButton.disabled = false;
+      dashButton.textContent = "⚡ DASH";
+
+      updateHealth();
+      updateUltimate();
+
+      showScreen(gameScreen);
+
+      requestAnimationFrame(() => {
+        resetHero();
+
+        coinTimer =
+          setInterval(createCoin, 1300);
+
+        enemyTimer =
+          setInterval(createEnemy, enemyInterval);
+
+        scoreTimer =
+          setInterval(updateScore, 1000);
+
+        animationFrame =
+          requestAnimationFrame(gameLoop);
+      });
+
+      message.textContent =
+        "Samla Legend Coins och undvik fiender!";
+    }
+
+
+    function updateScore() {
+      if (!gameRunning) return;
+
+      score++;
+      scoreDisplay.textContent = String(score);
+
+      /*
+        Svårigheten ökar mycket försiktigt
+        var 40:e sekund.
+      */
+      if (score % 40 === 0) {
+        enemySpeed += 0.04;
+
+        message.textContent =
+          "Fienderna blev lite snabbare!";
+
+        setTimeout(() => {
+          if (gameRunning) {
+            message.textContent =
+              "Fortsätt kämpa!";
+          }
+        }, 1000);
+      }
+    }
+
+
+    function resetHero() {
+      heroX =
+        game.clientWidth / 2 - HERO_WIDTH / 2;
+
+      heroY =
+        game.clientHeight - HERO_HEIGHT - 28;
+
+      updateHeroPosition();
+    }
+
+
+    function updateHeroPosition() {
+      hero.style.left = heroX + "px";
+      hero.style.top = heroY + "px";
+    }
+
+
+    function moveHero(direction) {
+      if (!gameRunning) return;
+
+      lastDirection = direction;
+
+      const speed =
+        ultimateActive
+          ? NORMAL_SPEED * 1.7
+          : NORMAL_SPEED;
+
+      const maxX =
+        game.clientWidth - HERO_WIDTH;
+
+      heroX += direction * speed;
+
+      heroX =
+        Math.max(0, Math.min(heroX, maxX));
+
+      updateHeroPosition();
+      checkCollisions();
+    }
+
+
+    function dash() {
+      if (
+        !gameRunning ||
+        !dashReady
+      ) {
+        return;
+      }
+
+      dashReady = false;
+      invincible = true;
+
+      dashButton.disabled = true;
+      dashButton.textContent = "LADDAR...";
+
+      hero.classList.add("dashing");
+
+      const maxX =
+        game.clientWidth - HERO_WIDTH;
+
+      heroX +=
+        lastDirection * DASH_DISTANCE;
+
+      heroX =
+        Math.max(0, Math.min(heroX, maxX));
+
+      updateHeroPosition();
+      checkCollisions();
+
+      setTimeout(() => {
+        hero.classList.remove("dashing");
+
+        if (!ultimateActive) {
+          invincible = false;
+        }
+      }, 350);
+
+      setTimeout(() => {
+        dashReady = true;
+        dashButton.disabled = false;
+        dashButton.textContent = "⚡ DASH";
+      }, 2000);
+    }
+
+
+    function createCoin() {
+      if (!gameRunning) return;
+
+      const coin =
+        document.createElement("div");
+
+      coin.className = "coin";
+
+      const maxX =
+        game.clientWidth - 30;
+
+      const x =
+        Math.random() * maxX;
+
+      coin.dataset.x = String(x);
+      coin.dataset.y = "-40";
+
+      coin.style.left = x + "px";
+      coin.style.top = "-40px";
+
+      game.appendChild(coin);
+    }
+
+
+    function createEnemy() {
+      if (!gameRunning) return;
+
+      const enemies =
+        document.querySelectorAll(".enemy");
+
+      if (enemies.length >= MAX_ENEMIES) {
+        return;
+      }
+
+      const enemy =
+        document.createElement("div");
+
+      enemy.className = "enemy";
+
+      const maxX =
+        game.clientWidth - 50;
+
+      const x =
+        Math.random() * maxX;
+
+      enemy.dataset.x = String(x);
+      enemy.dataset.y = "-70";
+
+      enemy.style.left = x + "px";
+      enemy.style.top = "-70px";
+
+      game.appendChild(enemy);
+    }
+
+
+    function gameLoop() {
+      if (!gameRunning) return;
+
+      moveCoins();
+      moveEnemies();
+      checkCollisions();
+
+      animationFrame =
+        requestAnimationFrame(gameLoop);
+    }
+
+
+    function moveCoins() {
+      document
+        .querySelectorAll(".coin")
+        .forEach((coin) => {
+          let x =
+            Number(coin.dataset.x);
+
+          let y =
+            Number(coin.dataset.y);
+
+          y += 2.6;
+
+          coin.dataset.x = String(x);
+          coin.dataset.y = String(y);
+
+          coin.style.left = x + "px";
+          coin.style.top = y + "px";
+
+          if (
+            y > game.clientHeight + 45
+          ) {
+            coin.remove();
+          }
+        });
+    }
+
+
+    function moveEnemies() {
+      document
+        .querySelectorAll(".enemy")
+        .forEach((enemy) => {
+          let x =
+            Number(enemy.dataset.x);
+
+          let y =
+            Number(enemy.dataset.y);
+
+          const heroCenter =
+            heroX + HERO_WIDTH / 2;
+
+          const enemyCenter =
+            x + 25;
+
+          /*
+            Fienden följer Aero försiktigt,
+            inte för aggressivt.
+          */
+          if (enemyCenter < heroCenter) {
+            x += enemySpeed * 0.42;
+          } else {
+            x -= enemySpeed * 0.42;
+          }
+
+          y += enemySpeed;
+
+          enemy.dataset.x = String(x);
+          enemy.dataset.y = String(y);
+
+          enemy.style.left = x + "px";
+          enemy.style.top = y + "px";
+
+          if (
+            y > game.clientHeight + 80
+          ) {
+            enemy.remove();
+          }
+        });
+    }
+
+
+    function checkCollisions() {
+      document
+        .querySelectorAll(".coin")
+        .forEach((coin) => {
+          if (touching(hero, coin)) {
+            collectCoin(coin);
+          }
+        });
+
+      document
+        .querySelectorAll(".enemy")
+        .forEach((enemy) => {
+          if (touching(hero, enemy)) {
+            hitEnemy(enemy);
+          }
+        });
+    }
+
+
+    function collectCoin(coin) {
+      if (!coin.isConnected) return;
+
+      matchCoins++;
+      coinCounter.textContent =
+        String(matchCoins);
+
+      ultimateCharge =
+        Math.min(
+          100,
+          ultimateCharge + 20
+        );
+
+      createEffect(
+        coin.offsetLeft,
+        coin.offsetTop,
+        "+1"
+      );
+
+      coin.remove();
+      updateUltimate();
+
+      message.textContent =
+        "+1 Legend Coin!";
+    }
+
+
+    function hitEnemy(enemy) {
+      if (!enemy.isConnected) return;
+
+      if (ultimateActive) {
+        createEffect(
+          enemy.offsetLeft,
+          enemy.offsetTop,
+          "💥"
+        );
+
+        score += 5;
+        scoreDisplay.textContent =
+          String(score);
+
+        enemy.remove();
+        return;
+      }
+
+      if (invincible) return;
+
+      enemy.remove();
+      loseHealth(15);
+    }
+
+
+    function loseHealth(amount) {
+      if (
+        !gameRunning ||
+        invincible
+      ) {
+        return;
+      }
+
+      health =
+        Math.max(0, health - amount);
+
+      updateHealth();
+
+      invincible = true;
+
+      hero.classList.add("hit");
+      game.classList.add("screen-shake");
+
+      message.textContent =
+        "Aero blev träffad!";
+
+      setTimeout(() => {
+        hero.classList.remove("hit");
+        game.classList.remove("screen-shake");
+      }, 350);
+
+      setTimeout(() => {
+        if (!ultimateActive) {
+          invincible = false;
+        }
+      }, 1200);
+
+      if (health <= 0) {
+        endGame();
+      }
+    }
+
+
+    function updateHealth() {
+      healthFill.style.width =
+        health + "%";
+
+      if (health > 60) {
+        healthFill.style.background =
+          "linear-gradient(90deg,#2cca61,#91ff78)";
+      } else if (health > 30) {
+        healthFill.style.background =
+          "linear-gradient(90deg,#ffd34e,#ff9518)";
+      } else {
+        healthFill.style.background =
+          "linear-gradient(90deg,#ff4b55,#a90000)";
+      }
+    }
+
+
+    function updateUltimate() {
+      ultimateFill.style.width =
+        ultimateCharge + "%";
+
+      const ready =
+        ultimateCharge >= 100;
+
+      ultimateButton.disabled =
+        !ready;
+
+      if (ready) {
+        ultimateButton.textContent =
+          "🌪️ STORM RUSH";
+      } else {
+        ultimateButton.textContent =
+          "🌪️ ULTIMATE " +
+          ultimateCharge +
+          "%";
+      }
+    }
+
+
+    function activateUltimate() {
+      if (
+        !gameRunning ||
+        ultimateActive ||
+        ultimateCharge < 100
+      ) {
+        return;
+      }
+
+      ultimateCharge = 0;
+      ultimateActive = true;
+      invincible = true;
+
+      hero.classList.add("ultimate");
+
+      updateUltimate();
+
+      ultimateButton.disabled = true;
+      ultimateButton.textContent =
+        "🌪️ AKTIV";
+
+      message.textContent =
+        "STORM RUSH AKTIVERAD!";
+
+      const magnetTimer =
+        setInterval(attractCoins, 40);
+
+      setTimeout(() => {
+        clearInterval(magnetTimer);
+
+        ultimateActive = false;
+        invincible = false;
+
+        hero.classList.remove("ultimate");
+
+        updateUltimate();
+
+        if (gameRunning) {
+          message.textContent =
+            "Storm Rush är slut!";
+        }
+      }, 5000);
+    }
+
+
+    function attractCoins() {
+      if (
+        !gameRunning ||
+        !ultimateActive
+      ) {
+        return;
+      }
+
+      const targetX =
+        heroX + HERO_WIDTH / 2;
+
+      const targetY =
+        heroY + HERO_HEIGHT / 2;
+
+      document
+        .querySelectorAll(".coin")
+        .forEach((coin) => {
+          let x =
+            Number(coin.dataset.x);
+
+          let y =
+            Number(coin.dataset.y);
+
+          const dx = targetX - x;
+          const dy = targetY - y;
+
+          const distance =
+            Math.sqrt(
+              dx * dx + dy * dy
+            );
+
+          if (
+            distance < 220 &&
+            distance > 0
+          ) {
+            x += (dx / distance) * 8;
+            y += (dy / distance) * 8;
+
+            coin.dataset.x = String(x);
+            coin.dataset.y = String(y);
+
+            coin.style.left = x + "px";
+            coin.style.top = y + "px";
+          }
+
+          if (touching(hero, coin)) {
+            collectCoin(coin);
+          }
+        });
+    }
+
+
+    function touching(first, second) {
+      const a =
+        first.getBoundingClientRect();
+
+      const b =
+        second.getBoundingClientRect();
+
+      return (
+        a.left < b.right &&
+        a.right > b.left &&
+        a.top < b.bottom &&
+        a.bottom > b.top
+      );
+    }
+
+
+    function createEffect(x, y, text) {
+      const effect =
+        document.createElement("div");
+
+      effect.className = "effect";
+      effect.textContent = text;
+
+      effect.style.left = x + "px";
+      effect.style.top = y + "px";
+
+      game.appendChild(effect);
+
+      setTimeout(() => {
+        effect.remove();
+      }, 700);
+    }
+
+
+    function endGame() {
+      if (!gameRunning) return;
+
+      gameRunning = false;
+
+      stopTimers();
+
+      if (score > highScore) {
+        highScore = score;
+
+        localStorage.setItem(
+          "legendArenaEasyHighScore",
+          String(highScore)
+        );
+      }
+
+      totalCoins += matchCoins;
+
+      localStorage.setItem(
+        "legendArenaEasyCoins",
+        String(totalCoins)
+      );
+
+      finalScoreDisplay.textContent =
+        String(score);
+
+      highScoreDisplay.textContent =
+        String(highScore);
+
+      totalCoinsDisplay.textContent =
+        String(totalCoins);
+
+      removeObjects();
+      showScreen(gameOverScreen);
+    }
+
+
+    function returnHome() {
+      gameRunning = false;
+
+      stopTimers();
+      removeObjects();
+
+      highScoreDisplay.textContent =
+        String(highScore);
+
+      totalCoinsDisplay.textContent =
+        String(totalCoins);
+
+      showScreen(menuScreen);
+    }
+
+
+    function stopTimers() {
+      clearInterval(coinTimer);
+      clearInterval(enemyTimer);
+      clearInterval(scoreTimer);
+
+      coinTimer = null;
+      enemyTimer = null;
+      scoreTimer = null;
+
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+    }
+
+
+    function removeObjects() {
+      document
+        .querySelectorAll(
+          ".coin, .enemy, .effect"
+        )
+        .forEach((object) => {
+          object.remove();
+        });
+    }
+
+
+    function pressAction(
+      element,
+      action
+    ) {
+      element.addEventListener(
+        "pointerdown",
+        (event) => {
+          event.preventDefault();
+          action();
+        }
+      );
+    }
+
+
+    playButton.addEventListener(
+      "click",
+      startGame
+    );
+
+    restartButton.addEventListener(
+      "click",
+      startGame
+    );
+
+    backButton.addEventListener(
+      "click",
+      returnHome
+    );
+
+    homeButton.addEventListener(
+      "click",
+      returnHome
+    );
+
+    pressAction(
+      leftButton,
+      () => moveHero(-1)
+    );
+
+    pressAction(
+      rightButton,
+      () => moveHero(1)
+    );
+
+    pressAction(
+      dashButton,
+      dash
+    );
+
+    pressAction(
+      ultimateButton,
+      activateUltimate
+    );
+
+
+    window.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "ArrowLeft") {
+          moveHero(-1);
+        }
+
+        if (event.key === "ArrowRight") {
+          moveHero(1);
+        }
+
+        if (event.code === "Space") {
+          event.preventDefault();
+          dash();
+        }
+
+        if (
+          event.key.toLowerCase() === "u"
+        ) {
+          activateUltimate();
+        }
+      }
+    );
+
+
+    window.addEventListener(
+      "resize",
+      () => {
+        if (gameRunning) {
+          resetHero();
+        }
+      }
+    );
+
+
+    highScoreDisplay.textContent =
+      String(highScore);
+
+    totalCoinsDisplay.textContent =
+      String(totalCoins);
+  </script>
+
+</body>
+</html>
