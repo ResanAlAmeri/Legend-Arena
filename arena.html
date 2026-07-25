@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legend Arena 2.0</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<main id="menu-screen" class="screen active">
+
+<div class="menu-card">
+
+<h1 class="menu-title">🛡️ LEGEND ARENA</h1>
+
+<p class="menu-subtitle">
+Kämpa. Vinn. Bli en Legend Champion.
+</p>
+
+<button id="play-button" class="menu-button">
+▶ SPELA
+</button>
+
+<button class="menu-button secondary">
+🦸 HJÄLTAR
+</button>
+
+<button class="menu-button secondary">
+🎨 SKINS
+</button>
+
+<button class="menu-button secondary">
+🏆 RANKING
+</button>
+
+</div>
+     <main id="game-screen" class="screen">
+
+<header class="top-bar">
+
+<div class="stat-box">
+🪙 <span id="coin-counter">0</span>
+</div>
+
+<h2 class="game-title">
+LEGEND ARENA
+</h2>
+
+<div class="stat-box right">
+AERO
+</div>
+
+</header>
+
+<div class="health-bar">
+<div id="health-fill" class="health-fill"></div>
+</div>
+
+<p id="message" class="message">
+Samla Legend Coins!
+</p>
+
+<section id="game">
+
+<div id="hero" class="hero"></div>
+
+</section>
+
+<section class="controls">
+
+<button id="left-button" class="control-button">
+◀
+</button>
+
+<button id="dash-button" class="control-button dash">
+⚡ DASH
+</button>
+
+<button id="right-button" class="control-button">
+▶
+</button>
+
+</section>
+
+<button
+id="back-button"
+class="menu-button secondary">
+
+← Till menyn
+
+</button>
+
+</main>
+<script src="game.js"></script>
+
+</body>
+</html>
