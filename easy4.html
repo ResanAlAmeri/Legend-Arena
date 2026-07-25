@@ -1,0 +1,2879 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1,
+    maximum-scale=1, user-scalable=no"
+  >
+
+  <title>Legend Arena 0.4</title>
+
+  <style>
+    :root {
+      --gold: #ffd447;
+      --blue: #087cff;
+      --red: #ef3340;
+      --green: #22c55e;
+      --purple: #9c45ff;
+      --dark-blue: #020819;
+      --panel: rgba(5, 20, 58, 0.95);
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      color: white;
+      background:
+        radial-gradient(
+          circle at top,
+          #174da4,
+          #020819 68%
+        );
+    }
+
+    button {
+      border: 0;
+      color: white;
+      font-family: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      filter: grayscale(0.7);
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* MENY */
+
+    #menu-screen {
+      position: relative;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      text-align: center;
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 50% 20%,
+          rgba(35, 120, 255, 0.65),
+          transparent 36%
+        ),
+        linear-gradient(
+          180deg,
+          #071b4a,
+          #020817 72%
+        );
+    }
+
+    #menu-screen::before,
+    #menu-screen::after {
+      content: "";
+      position: absolute;
+      top: -15%;
+      width: 180px;
+      height: 130%;
+      pointer-events: none;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(255,255,255,0.15),
+          transparent
+        );
+    }
+
+    #menu-screen::before {
+      left: -110px;
+      transform: rotate(14deg);
+    }
+
+    #menu-screen::after {
+      right: -110px;
+      transform: rotate(-14deg);
+    }
+
+    .logo-frame {
+      width: min(325px, 84vw);
+      padding: 10px;
+      margin-bottom: 16px;
+      border-radius: 27px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #fff083,
+          #a96900
+        );
+
+      box-shadow:
+        0 0 32px rgba(255, 207, 42, 0.55),
+        0 18px 45px rgba(0,0,0,0.55);
+
+      z-index: 2;
+    }
+
+    .menu-logo {
+      display: block;
+      width: 100%;
+      border-radius: 19px;
+      background: #071945;
+    }
+
+    .version-text {
+      margin-bottom: 20px;
+      color: #dce9ff;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      z-index: 2;
+    }
+
+    .menu-button {
+      width: min(320px, 86vw);
+      min-height: 58px;
+      margin: 7px;
+      border-radius: 18px;
+      font-size: 20px;
+
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.35),
+        0 8px 18px rgba(0,0,0,0.42);
+
+      z-index: 2;
+    }
+
+    #play-button {
+      color: #211800;
+
+      background:
+        linear-gradient(
+          180deg,
+          #fff36b,
+          #f3a600
+        );
+    }
+
+    #instructions-button {
+      background:
+        linear-gradient(
+          180deg,
+          #238eff,
+          #0647b7
+        );
+    }
+
+    .menu-stats {
+      margin-top: 12px;
+      padding: 12px 18px;
+      border-radius: 15px;
+      line-height: 1.8;
+      font-weight: 900;
+
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.15);
+
+      z-index: 2;
+    }
+
+    /* SPELSKÄRM */
+
+    #game-screen {
+      flex-direction: column;
+      background: #020819;
+    }
+
+    #top-hud {
+      flex: 0 0 auto;
+
+      padding:
+        max(7px, env(safe-area-inset-top))
+        8px
+        7px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #071943,
+          #02091f
+        );
+
+      border-bottom: 2px solid #2455ac;
+
+      box-shadow:
+        0 4px 12px rgba(0,0,0,0.45);
+
+      z-index: 20;
+    }
+
+    .hud-line {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+
+    .hud-label {
+      min-width: 78px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .meter {
+      position: relative;
+      flex: 1;
+      height: 17px;
+      overflow: hidden;
+      border-radius: 20px;
+
+      background: #111a2e;
+      border: 2px solid rgba(255,255,255,0.2);
+
+      box-shadow:
+        inset 0 2px 4px rgba(0,0,0,0.7);
+    }
+
+    .meter-fill {
+      height: 100%;
+      transition: width 0.2s ease;
+    }
+
+    #ultimate-fill {
+      width: 0%;
+
+      background:
+        linear-gradient(
+          90deg,
+          #125cff,
+          #20efff,
+          #ffffff
+        );
+    }
+
+    #health-fill {
+      width: 100%;
+
+      background:
+        linear-gradient(
+          90deg,
+          #00a63c,
+          #8cff7a
+        );
+    }
+
+    #ultimate-percent,
+    #health-count {
+      min-width: 42px;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    #stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .stat-box {
+      padding: 7px 4px;
+      border-radius: 11px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+
+      background:
+        linear-gradient(
+          180deg,
+          rgba(24,71,151,0.95),
+          rgba(3,17,54,0.95)
+        );
+
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    #level-box {
+      color: var(--gold);
+    }
+
+    /* ARENA */
+
+    #game {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      isolation: isolate;
+
+      border-left: 4px solid white;
+      border-right: 4px solid white;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent 49.4%,
+          rgba(255,255,255,0.75) 49.5%,
+          rgba(255,255,255,0.75) 50.5%,
+          transparent 50.6%
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(0,0,0,0.06) 0 52px,
+          rgba(255,255,255,0.035) 52px 104px
+        ),
+        linear-gradient(
+          180deg,
+          #16883b,
+          #087a30
+        );
+    }
+
+    #game::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 115px;
+      height: 115px;
+
+      transform: translate(-50%, -50%);
+
+      border: 3px solid rgba(255,255,255,0.7);
+      border-radius: 50%;
+
+      pointer-events: none;
+    }
+
+    #game::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 12;
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          transparent 42%,
+          rgba(0,0,0,0.22) 100%
+        );
+    }
+
+    .crowd {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 27px;
+      z-index: 1;
+
+      background:
+        radial-gradient(
+          circle,
+          #ffd33f 0 2px,
+          transparent 3px
+        )
+        0 2px / 16px 12px,
+
+        radial-gradient(
+          circle,
+          #45a7ff 0 2px,
+          transparent 3px
+        )
+        8px 6px / 18px 13px,
+
+        linear-gradient(
+          #162754,
+          #08122e
+        );
+
+      border-bottom: 3px solid #ccd8f0;
+    }
+
+    .crowd.top {
+      top: 0;
+    }
+
+    .crowd.bottom {
+      bottom: 0;
+      transform: rotate(180deg);
+    }
+
+    .light {
+      position: absolute;
+      top: -50px;
+      width: 120px;
+      height: 250px;
+      z-index: 2;
+      opacity: 0.18;
+      pointer-events: none;
+
+      background:
+        linear-gradient(
+          180deg,
+          white,
+          transparent
+        );
+
+      clip-path:
+        polygon(
+          42% 0,
+          58% 0,
+          100% 100%,
+          0 100%
+        );
+    }
+
+    .light.left {
+      left: -8px;
+      transform: rotate(-16deg);
+    }
+
+    .light.right {
+      right: -8px;
+      transform: rotate(16deg);
+    }
+
+    /* AERO */
+
+    #hero {
+      position: absolute;
+      width: 58px;
+      height: 72px;
+      z-index: 10;
+
+      filter:
+        drop-shadow(
+          0 6px 5px rgba(0,0,0,0.45)
+        );
+    }
+
+    .hero-head {
+      position: absolute;
+      left: 15px;
+      top: 0;
+      width: 27px;
+      height: 27px;
+
+      border-radius: 50%;
+      background: #f0b07b;
+      border: 3px solid #061744;
+    }
+
+    .hero-hair {
+      position: absolute;
+      left: 14px;
+      top: -2px;
+      width: 30px;
+      height: 14px;
+
+      border-radius: 50% 50% 30% 30%;
+      background: #132035;
+    }
+
+    .hero-body {
+      position: absolute;
+      left: 10px;
+      top: 24px;
+      width: 38px;
+      height: 38px;
+
+      border-radius: 13px 13px 8px 8px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #1f8bff,
+          #072778
+        );
+
+      border: 3px solid #061744;
+    }
+
+    .hero-body::after {
+      content: "A";
+      position: absolute;
+      inset: 5px 0 0;
+      text-align: center;
+      color: white;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .hero-leg {
+      position: absolute;
+      top: 56px;
+      width: 12px;
+      height: 20px;
+
+      border-radius: 4px;
+      background: #071a50;
+      border: 2px solid #03102f;
+    }
+
+    .hero-leg.left {
+      left: 13px;
+    }
+
+    .hero-leg.right {
+      right: 13px;
+    }
+
+    .hero-gun {
+      position: absolute;
+      right: -7px;
+      top: 34px;
+      width: 25px;
+      height: 11px;
+
+      border-radius: 3px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #e8f2ff,
+          #526078
+        );
+
+      border: 2px solid #11192a;
+      transform-origin: left center;
+    }
+
+    #hero.facing-left .hero-gun {
+      right: auto;
+      left: -7px;
+      transform: scaleX(-1);
+    }
+        #hero.hit {
+      animation: hero-hit 0.35s linear;
+    }
+
+    #hero.dashing {
+      filter:
+        drop-shadow(18px 0 8px rgba(34,232,255,0.8))
+        brightness(1.35);
+    }
+
+    #hero.ultimate {
+      animation: ultimate-glow 0.5s infinite alternate;
+    }
+
+    /* FIENDER */
+
+    .enemy {
+      position: absolute;
+      z-index: 8;
+
+      filter:
+        drop-shadow(
+          0 5px 4px rgba(0,0,0,0.42)
+        );
+    }
+
+    .enemy-health {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      top: -9px;
+      height: 5px;
+
+      overflow: hidden;
+      border-radius: 8px;
+      background: #3b0710;
+      border: 1px solid white;
+    }
+
+    .enemy-health-fill {
+      width: 100%;
+      height: 100%;
+      background: #38e568;
+    }
+
+    .enemy-face {
+      position: absolute;
+      left: 50%;
+      top: 6px;
+
+      transform: translateX(-50%);
+
+      border-radius: 50%;
+      background: #e0a676;
+      border: 2px solid #131313;
+    }
+
+    .enemy-body {
+      position: absolute;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      border: 3px solid #171717;
+    }
+
+    .enemy.normal {
+      width: 54px;
+      height: 68px;
+    }
+
+    .enemy.normal .enemy-face {
+      width: 24px;
+      height: 24px;
+    }
+
+    .enemy.normal .enemy-body {
+      top: 26px;
+      width: 38px;
+      height: 38px;
+
+      border-radius: 11px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #ff4a52,
+          #85111c
+        );
+    }
+
+    .enemy.runner {
+      width: 46px;
+      height: 60px;
+    }
+
+    .enemy.runner .enemy-face {
+      width: 21px;
+      height: 21px;
+    }
+
+    .enemy.runner .enemy-body {
+      top: 23px;
+      width: 30px;
+      height: 33px;
+
+      border-radius: 15px 8px 15px 8px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #61ff80,
+          #087f35
+        );
+    }
+
+    .enemy.runner::after {
+      content: "⚡";
+      position: absolute;
+      right: -7px;
+      top: 25px;
+      font-size: 18px;
+    }
+
+    .enemy.tank {
+      width: 74px;
+      height: 84px;
+    }
+
+    .enemy.tank .enemy-face {
+      width: 30px;
+      height: 30px;
+    }
+
+    .enemy.tank .enemy-body {
+      top: 31px;
+      width: 66px;
+      height: 50px;
+
+      border-radius: 12px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #b872ff,
+          #451080
+        );
+
+      border-width: 4px;
+    }
+
+    .enemy.tank .enemy-body::after {
+      content: "TANK";
+      position: absolute;
+      width: 100%;
+      top: 15px;
+
+      text-align: center;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    /* OBJEKT */
+
+    .coin {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      z-index: 7;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle at 35% 28%,
+          #fff6a1,
+          #ffd529 35%,
+          #c17b00 72%
+        );
+
+      border: 3px solid #fff1a4;
+
+      box-shadow:
+        0 0 10px rgba(255,211,41,0.9);
+
+      animation:
+        coin-spin 0.65s linear infinite;
+    }
+
+    .coin::after {
+      content: "L";
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+
+      color: #7a4800;
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    .bullet {
+      position: absolute;
+      width: 18px;
+      height: 7px;
+      z-index: 11;
+
+      border-radius: 10px;
+
+      background:
+        linear-gradient(
+          90deg,
+          white,
+          #ffe83a,
+          #ff8b16
+        );
+
+      box-shadow:
+        0 0 9px #fff36b;
+    }
+
+    .power-up {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      z-index: 9;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 10px;
+      font-size: 21px;
+
+      background:
+        radial-gradient(
+          circle,
+          white,
+          #2deaff 50%,
+          #1744b9
+        );
+
+      border: 2px solid white;
+
+      box-shadow:
+        0 0 15px #42edff;
+
+      animation:
+        power-pulse 0.7s infinite alternate;
+    }
+
+    .effect {
+      position: absolute;
+      z-index: 18;
+
+      font-size: 25px;
+      font-weight: 900;
+      color: white;
+
+      text-shadow:
+        0 2px 2px black,
+        0 0 9px #ffd52d;
+
+      animation:
+        effect-rise 0.7s forwards;
+
+      pointer-events: none;
+    }
+
+    /* KONTROLLER */
+
+    #controls {
+      flex: 0 0 auto;
+
+      padding:
+        8px
+        8px
+        max(10px, env(safe-area-inset-bottom));
+
+      background:
+        linear-gradient(
+          180deg,
+          #07112d,
+          #01040f
+        );
+
+      border-top: 2px solid #244b9d;
+    }
+
+    .control-row {
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr 1.08fr 1.08fr 1.08fr;
+
+      gap: 6px;
+    }
+
+    .control-button {
+      min-height: 55px;
+      padding: 5px 3px;
+
+      border-radius: 15px;
+      font-size: 13px;
+
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.3),
+        0 5px 10px rgba(0,0,0,0.5);
+    }
+
+    .move-button {
+      font-size: 26px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #258fff,
+          #0645aa
+        );
+    }
+
+    #dash-button {
+      color: #271800;
+
+      background:
+        linear-gradient(
+          180deg,
+          #ffe658,
+          #d68a00
+        );
+    }
+
+    #ultimate-button {
+      background:
+        linear-gradient(
+          180deg,
+          #c167ff,
+          #541094
+        );
+    }
+
+    #fire-button {
+      background:
+        linear-gradient(
+          180deg,
+          #ff5b5b,
+          #9a0814
+        );
+    }
+
+    #message {
+      min-height: 21px;
+      margin-top: 7px;
+
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: #dce8ff;
+    }
+
+    /* GAME OVER OCH INFORMATION */
+
+    #game-over-screen,
+    #instructions-screen {
+      position: relative;
+
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      padding: 24px;
+      text-align: center;
+
+      background:
+        radial-gradient(
+          circle at top,
+          #153b81,
+          #020718 68%
+        );
+    }
+
+    .result-card,
+    .instructions-card {
+      width: min(360px, 92vw);
+      padding: 24px;
+
+      border-radius: 24px;
+
+      background: var(--panel);
+      border: 2px solid #2b67d3;
+
+      box-shadow:
+        0 18px 45px rgba(0,0,0,0.58);
+    }
+
+    .result-card h1,
+    .instructions-card h1 {
+      margin-top: 0;
+      color: var(--gold);
+    }
+
+    .result-line {
+      padding: 8px;
+      margin: 6px 0;
+
+      border-radius: 10px;
+
+      background:
+        rgba(255,255,255,0.08);
+
+      font-weight: 900;
+    }
+
+    .small-button {
+      width: 100%;
+      min-height: 52px;
+      margin-top: 10px;
+
+      border-radius: 14px;
+      font-size: 17px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #238eff,
+          #0642a5
+        );
+    }
+
+    /* ANIMATIONER */
+
+    @keyframes coin-spin {
+      0% {
+        transform: rotateY(0deg);
+      }
+
+      100% {
+        transform: rotateY(360deg);
+      }
+    }
+
+    @keyframes power-pulse {
+      from {
+        transform: scale(0.88);
+      }
+
+      to {
+        transform: scale(1.08);
+      }
+    }
+
+    @keyframes hero-hit {
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      25%,
+      75% {
+        opacity: 0.2;
+      }
+
+      50% {
+        transform: translateX(7px);
+      }
+    }
+
+    @keyframes ultimate-glow {
+      from {
+        filter:
+          drop-shadow(0 0 7px #23e9ff)
+          brightness(1.2);
+      }
+
+      to {
+        filter:
+          drop-shadow(0 0 21px white)
+          brightness(1.7);
+      }
+    }
+
+    @keyframes effect-rise {
+      0% {
+        transform: scale(0.7);
+        opacity: 1;
+      }
+
+      100% {
+        transform:
+          translateY(-45px)
+          scale(1.25);
+
+        opacity: 0;
+      }
+    }
+
+    @keyframes screen-shake {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-7px);
+      }
+
+      50% {
+        transform: translateX(7px);
+      }
+
+      75% {
+        transform: translateX(-4px);
+      }
+    }
+
+    .screen-shake {
+      animation:
+        screen-shake 0.3s linear;
+    }
+  </style>
+</head>
+
+<body>
+
+  <section
+    id="menu-screen"
+    class="screen active"
+  >
+    <div class="logo-frame">
+      <img
+        src="D57158AD-8D6C-4BDB-B8FB-435E97345E1C.png"
+        alt="Legend Arena"
+        class="menu-logo"
+      >
+    </div>
+
+    <div class="version-text">
+      STADIUM BATTLE · VERSION 0.4
+    </div>
+
+    <button
+      id="play-button"
+      class="menu-button"
+    >
+      ▶️ PLAY
+    </button>
+
+    <button
+      id="instructions-button"
+      class="menu-button"
+    >
+      📘 SÅ SPELAR DU
+    </button>
+
+    <div class="menu-stats">
+      🏆 Highscore:
+      <span id="menu-high-score">0</span>
+      <br>
+
+      🪙 Totala Coins:
+      <span id="menu-total-coins">0</span>
+    </div>
+  </section>
+
+  <section
+    id="game-screen"
+    class="screen"
+  >
+    <header id="top-hud">
+
+      <div class="hud-line">
+        <div class="hud-label">
+          🌪️ ULTIMATE
+        </div>
+
+        <div class="meter">
+          <div
+            id="ultimate-fill"
+            class="meter-fill"
+          ></div>
+        </div>
+
+        <div id="ultimate-percent">
+          0%
+        </div>
+      </div>
+
+      <div class="hud-line">
+        <div class="hud-label">
+          ❤️ LIV
+        </div>
+
+        <div class="meter">
+          <div
+            id="health-fill"
+            class="meter-fill"
+          ></div>
+        </div>
+
+        <div id="health-count">
+          5/5
+        </div>
+      </div>
+
+      <div id="stats-row">
+
+        <div
+          id="level-box"
+          class="stat-box"
+        >
+          🏆 NIVÅ
+          <span id="level-number">1</span>
+        </div>
+
+        <div class="stat-box">
+          🪙 COINS
+          <span id="coin-counter">0</span>
+        </div>
+
+        <div class="stat-box">
+          ⭐ POÄNG
+          <span id="score">0</span>
+        </div>
+
+      </div>
+    </header>
+
+    <main id="game">
+
+      <div class="crowd top"></div>
+      <div class="crowd bottom"></div>
+
+      <div class="light left"></div>
+      <div class="light right"></div>
+
+      <div id="hero">
+        <div class="hero-hair"></div>
+        <div class="hero-head"></div>
+        <div class="hero-body"></div>
+        <div class="hero-leg left"></div>
+        <div class="hero-leg right"></div>
+        <div class="hero-gun"></div>
+      </div>
+
+    </main>
+
+    <footer id="controls">
+
+      <div class="control-row">
+
+        <button
+          id="left-button"
+          class="control-button move-button"
+        >
+          ◀
+        </button>
+
+        <button
+          id="right-button"
+          class="control-button move-button"
+        >
+          ▶
+        </button>
+
+        <button
+          id="dash-button"
+          class="control-button"
+        >
+          ⚡ DASH
+        </button>
+
+        <button
+          id="ultimate-button"
+          class="control-button"
+        >
+          🌪️ ULT
+        </button>
+
+        <button
+          id="fire-button"
+          class="control-button"
+        >
+          🔫 FIRE
+          <br>
+
+          <span id="ammo-display">
+            ●●●
+          </span>
+        </button>
+
+      </div>
+
+      <div id="message">
+        Aero är redo!
+      </div>
+
+    </footer>
+  </section>
+
+  <section
+    id="game-over-screen"
+    class="screen"
+  >
+    <div class="result-card">
+
+      <h1>GAME OVER</h1>
+
+      <div class="result-line">
+        ⭐ Poäng:
+        <span id="final-score">0</span>
+      </div>
+
+      <div class="result-line">
+        🏆 Nivå:
+        <span id="final-level">1</span>
+      </div>
+
+      <div class="result-line">
+        🪙 Coins:
+        <span id="final-coins">0</span>
+      </div>
+
+      <div class="result-line">
+        👾 Besegrade:
+        <span id="final-kills">0</span>
+      </div>
+
+      <div class="result-line">
+        🥇 Highscore:
+        <span id="high-score">0</span>
+      </div>
+
+      <button
+        id="restart-button"
+        class="small-button"
+      >
+        🔄 SPELA IGEN
+      </button>
+
+      <button
+        id="home-button"
+        class="small-button"
+      >
+        🏠 MENY
+      </button>
+
+    </div>
+  </section>
+
+  <section
+    id="instructions-screen"
+    class="screen"
+  >
+    <div class="instructions-card">
+
+      <h1>SÅ SPELAR DU</h1>
+
+      <p>
+        Samla Coins, undvik fiender och
+        använd Aero Blaster för att
+        besegra dem.
+      </p>
+
+      <p>
+        🟢 Runner: 1 träff och tar 1 liv.
+        <br>
+        🔴 Rival: 2 träffar och tar 1 liv.
+        <br>
+        🟣 Tank: 5 träffar och tar 3 liv.
+      </p>
+
+      <p>
+        🔫 Du har 3 skott.
+        Omladdningen tar 2 sekunder.
+      </p>
+
+      <p>
+        ⚡ Dash kräver 10 poäng.
+        <br>
+        🌪️ Ultimate kräver 30 poäng.
+      </p>
+
+      <button
+        id="instructions-back-button"
+        class="small-button"
+      >
+        ← TILLBAKA
+      </button>
+
+    </div>
+  </section>
+
+  <script>
+       "use strict";
+
+    const get = (id) =>
+      document.getElementById(id);
+
+    const menuScreen =
+      get("menu-screen");
+
+    const gameScreen =
+      get("game-screen");
+
+    const gameOverScreen =
+      get("game-over-screen");
+
+    const instructionsScreen =
+      get("instructions-screen");
+
+    const game =
+      get("game");
+
+    const hero =
+      get("hero");
+
+    const playButton =
+      get("play-button");
+
+    const instructionsButton =
+      get("instructions-button");
+
+    const instructionsBackButton =
+      get("instructions-back-button");
+
+    const restartButton =
+      get("restart-button");
+
+    const homeButton =
+      get("home-button");
+
+    const leftButton =
+      get("left-button");
+
+    const rightButton =
+      get("right-button");
+
+    const dashButton =
+      get("dash-button");
+
+    const ultimateButton =
+      get("ultimate-button");
+
+    const fireButton =
+      get("fire-button");
+
+    const scoreDisplay =
+      get("score");
+
+    const coinDisplay =
+      get("coin-counter");
+
+    const levelDisplay =
+      get("level-number");
+
+    const healthFill =
+      get("health-fill");
+
+    const healthCount =
+      get("health-count");
+
+    const ultimateFill =
+      get("ultimate-fill");
+
+    const ultimatePercent =
+      get("ultimate-percent");
+
+    const ammoDisplay =
+      get("ammo-display");
+
+    const message =
+      get("message");
+
+    const menuHighScore =
+      get("menu-high-score");
+
+    const menuTotalCoins =
+      get("menu-total-coins");
+
+    const finalScore =
+      get("final-score");
+
+    const finalLevel =
+      get("final-level");
+
+    const finalCoins =
+      get("final-coins");
+
+    const finalKills =
+      get("final-kills");
+
+    const highScoreDisplay =
+      get("high-score");
+
+
+    const HERO_WIDTH = 58;
+    const HERO_HEIGHT = 72;
+
+    const MAX_LIVES = 5;
+    const MAX_ENEMIES = 3;
+
+    const HERO_SPEED = 24;
+    const DASH_DISTANCE = 105;
+
+    const DASH_COST = 10;
+    const ULTIMATE_COST = 30;
+
+    const MAX_AMMO = 3;
+    const RELOAD_TIME = 2000;
+
+    let heroX = 0;
+    let heroY = 0;
+    let direction = 1;
+
+    let score = 0;
+    let coins = 0;
+    let lives = MAX_LIVES;
+    let level = 1;
+    let kills = 0;
+
+    let ammo = MAX_AMMO;
+    let reloading = false;
+
+    let running = false;
+    let invincible = false;
+    let ultimateActive = false;
+
+    let highScore =
+      Number(
+        localStorage.getItem(
+          "legendArenaEasy4HighScore"
+        )
+      ) || 0;
+
+    let totalCoins =
+      Number(
+        localStorage.getItem(
+          "legendArenaEasy4Coins"
+        )
+      ) || 0;
+
+    let enemyTimer = null;
+    let coinTimer = null;
+    let scoreTimer = null;
+    let animationFrame = null;
+
+    const enemies = [];
+    const bullets = [];
+    const fallingObjects = [];
+
+
+    function showScreen(screen) {
+      menuScreen.classList.remove("active");
+      gameScreen.classList.remove("active");
+      gameOverScreen.classList.remove("active");
+      instructionsScreen.classList.remove("active");
+
+      screen.classList.add("active");
+    }
+
+
+    function startGame() {
+      stopGameTimers();
+      removeAllObjects();
+
+      score = 0;
+      coins = 0;
+      lives = MAX_LIVES;
+      level = 1;
+      kills = 0;
+
+      ammo = MAX_AMMO;
+      reloading = false;
+
+      running = true;
+      invincible = false;
+      ultimateActive = false;
+
+      hero.classList.remove(
+        "hit",
+        "dashing",
+        "ultimate",
+        "facing-left"
+      );
+
+      showScreen(gameScreen);
+
+      requestAnimationFrame(() => {
+        resetHero();
+        updateHud();
+
+        enemyTimer =
+          setInterval(
+            createEnemy,
+            3000
+          );
+
+        coinTimer =
+          setInterval(
+            createCoin,
+            1400
+          );
+
+        scoreTimer =
+          setInterval(() => {
+            if (!running) {
+              return;
+            }
+
+            score++;
+            updateLevel();
+            updateHud();
+          }, 1000);
+
+        animationFrame =
+          requestAnimationFrame(gameLoop);
+      });
+
+      message.textContent =
+        "Aero är redo!";
+    }
+
+
+    function resetHero() {
+      heroX =
+        game.clientWidth / 2 -
+        HERO_WIDTH / 2;
+
+      heroY =
+        game.clientHeight -
+        HERO_HEIGHT -
+        30;
+
+      updateHeroPosition();
+    }
+
+
+    function updateHeroPosition() {
+      hero.style.left =
+        heroX + "px";
+
+      hero.style.top =
+        heroY + "px";
+
+      hero.classList.toggle(
+        "facing-left",
+        direction < 0
+      );
+    }
+
+
+    function moveHero(moveDirection) {
+      if (!running) {
+        return;
+      }
+
+      direction = moveDirection;
+
+      heroX +=
+        moveDirection * HERO_SPEED;
+
+      heroX =
+        Math.max(
+          0,
+          Math.min(
+            heroX,
+            game.clientWidth -
+            HERO_WIDTH
+          )
+        );
+
+      updateHeroPosition();
+    }
+
+
+    function useDash() {
+      if (
+        !running ||
+        score < DASH_COST
+      ) {
+        message.textContent =
+          "Dash kräver 10 poäng.";
+
+        return;
+      }
+
+      score -= DASH_COST;
+
+      heroX +=
+        direction * DASH_DISTANCE;
+
+      heroX =
+        Math.max(
+          0,
+          Math.min(
+            heroX,
+            game.clientWidth -
+            HERO_WIDTH
+          )
+        );
+
+      invincible = true;
+
+      hero.classList.add(
+        "dashing"
+      );
+
+      updateHeroPosition();
+      updateLevel();
+      updateHud();
+
+      message.textContent =
+        "⚡ Dash!";
+
+      setTimeout(() => {
+        hero.classList.remove(
+          "dashing"
+        );
+
+        if (!ultimateActive) {
+          invincible = false;
+        }
+      }, 400);
+    }
+
+
+    function fireWeapon() {
+      if (
+        !running ||
+        reloading
+      ) {
+        return;
+      }
+
+      if (ammo <= 0) {
+        startReload();
+        return;
+      }
+
+      ammo--;
+
+      const bulletElement =
+        document.createElement("div");
+
+      bulletElement.className =
+        "bullet";
+
+      game.appendChild(
+        bulletElement
+      );
+
+      const bullet = {
+        element: bulletElement,
+
+        x:
+          heroX +
+          (direction > 0
+            ? HERO_WIDTH - 5
+            : -13),
+
+        y:
+          heroY + 36,
+
+        direction:
+          direction,
+
+        remainingRange:
+          game.clientWidth / 2
+      };
+
+      bullets.push(bullet);
+
+      updateHud();
+
+      if (ammo === 0) {
+        startReload();
+      }
+    }
+
+
+    function startReload() {
+      if (reloading) {
+        return;
+      }
+
+      reloading = true;
+
+      message.textContent =
+        "🔫 Omladdar...";
+
+      updateHud();
+
+      setTimeout(() => {
+        ammo = MAX_AMMO;
+        reloading = false;
+
+        updateHud();
+
+        if (running) {
+          message.textContent =
+            "🔫 Vapnet är laddat!";
+        }
+      }, RELOAD_TIME);
+    }
+
+
+    function activateUltimate() {
+      if (
+        !running ||
+        ultimateActive ||
+        score < ULTIMATE_COST
+      ) {
+        message.textContent =
+          "Ultimate kräver 30 poäng.";
+
+        return;
+      }
+
+      score -= ULTIMATE_COST;
+
+      ultimateActive = true;
+      invincible = true;
+
+      hero.classList.add(
+        "ultimate"
+      );
+
+      message.textContent =
+        "🌪️ STORM RUSH!";
+
+      enemies
+        .slice()
+        .forEach((enemy) => {
+          defeatEnemy(enemy);
+        });
+
+      updateLevel();
+      updateHud();
+
+      setTimeout(() => {
+        ultimateActive = false;
+        invincible = false;
+
+        hero.classList.remove(
+          "ultimate"
+        );
+
+        updateHud();
+
+        if (running) {
+          message.textContent =
+            "Storm Rush är slut.";
+        }
+      }, 4000);
+    }
+
+
+    function createEnemy() {
+      if (
+        !running ||
+        enemies.length >= MAX_ENEMIES
+      ) {
+        return;
+      }
+
+      const random =
+        Math.random();
+
+      let type;
+
+      if (level === 1) {
+        type =
+          random < 0.65
+            ? "normal"
+            : "runner";
+      } else {
+        if (random < 0.35) {
+          type = "runner";
+        } else if (random < 0.75) {
+          type = "normal";
+        } else {
+          type = "tank";
+        }
+      }
+
+      let settings;
+
+      if (type === "runner") {
+        settings = {
+          width: 46,
+          height: 60,
+          health: 1,
+          speed: 2.4,
+          damage: 1,
+          rewardCoins: 1,
+          rewardScore: 5
+        };
+      } else if (type === "tank") {
+        settings = {
+          width: 74,
+          height: 84,
+          health: 5,
+          speed: 0.75,
+          damage: 3,
+          rewardCoins: 5,
+          rewardScore: 15
+        };
+      } else {
+        settings = {
+          width: 54,
+          height: 68,
+          health: 2,
+          speed: 1.25,
+          damage: 1,
+          rewardCoins: 2,
+          rewardScore: 8
+        };
+      }
+
+      const enemyElement =
+        document.createElement("div");
+
+      enemyElement.className =
+        "enemy " + type;
+
+      enemyElement.innerHTML = `
+        <div class="enemy-health">
+          <div
+            class="enemy-health-fill"
+          ></div>
+        </div>
+
+        <div class="enemy-face"></div>
+        <div class="enemy-body"></div>
+      `;
+
+      game.appendChild(
+        enemyElement
+      );
+
+      const enemy = {
+        element:
+          enemyElement,
+
+        type:
+          type,
+
+        x:
+          Math.random() *
+          (
+            game.clientWidth -
+            settings.width
+          ),
+
+        y:
+          -settings.height,
+
+        width:
+          settings.width,
+
+        height:
+          settings.height,
+
+        health:
+          settings.health,
+
+        maxHealth:
+          settings.health,
+
+        speed:
+          settings.speed,
+
+        damage:
+          settings.damage,
+
+        rewardCoins:
+          settings.rewardCoins,
+
+        rewardScore:
+          settings.rewardScore
+      };
+
+      enemies.push(enemy);
+    }
+
+
+    function createCoin() {
+      if (!running) {
+        return;
+      }
+
+      const coinElement =
+        document.createElement("div");
+
+      coinElement.className =
+        "coin";
+
+      game.appendChild(
+        coinElement
+      );
+
+      fallingObjects.push({
+        element:
+          coinElement,
+
+        type:
+          "coin",
+
+        x:
+          Math.random() *
+          (
+            game.clientWidth -
+            30
+          ),
+
+        y:
+          -35,
+
+        speed:
+          2.1
+      });
+    }
+
+
+    function createPowerUp(
+      positionX,
+      positionY
+    ) {
+      const types = [
+        "❤️",
+        "⚡",
+        "🌪️",
+        "🔫",
+        "🛡️"
+      ];
+
+      const type =
+        types[
+          Math.floor(
+            Math.random() *
+            types.length
+          )
+        ];
+
+      const powerElement =
+        document.createElement("div");
+
+      powerElement.className =
+        "power-up";
+
+      powerElement.textContent =
+        type;
+
+      game.appendChild(
+        powerElement
+      );
+
+      fallingObjects.push({
+        element:
+          powerElement,
+
+        type:
+          "power",
+
+        powerType:
+          type,
+
+        x:
+          positionX,
+
+        y:
+          positionY,
+
+        speed:
+          1.2
+      });
+    }
+
+
+    function gameLoop() {
+      if (!running) {
+        return;
+      }
+
+      updateBullets();
+      updateEnemies();
+      updateFallingObjects();
+
+      animationFrame =
+        requestAnimationFrame(
+          gameLoop
+        );
+    }
+
+
+    function updateBullets() {
+      bullets
+        .slice()
+        .forEach((bullet) => {
+          bullet.x +=
+            bullet.direction * 8;
+
+          bullet.remainingRange -= 8;
+
+          bullet.element.style.left =
+            bullet.x + "px";
+
+          bullet.element.style.top =
+            bullet.y + "px";
+
+          enemies
+            .slice()
+            .forEach((enemy) => {
+              if (
+                bullet.element.isConnected &&
+                elementsTouch(
+                  bullet.element,
+                  enemy.element
+                )
+              ) {
+                enemy.health--;
+
+                const enemyHealthFill =
+                  enemy.element.querySelector(
+                    ".enemy-health-fill"
+                  );
+
+                enemyHealthFill.style.width =
+                  (
+                    enemy.health /
+                    enemy.maxHealth *
+                    100
+                  ) + "%";
+
+                removeBullet(
+                  bullet
+                );
+
+                if (
+                  enemy.health <= 0
+                ) {
+                  defeatEnemy(
+                    enemy
+                  );
+                }
+              }
+            });
+
+          if (
+            bullet.remainingRange <= 0 ||
+            bullet.x < -30 ||
+            bullet.x >
+            game.clientWidth + 30
+          ) {
+            removeBullet(
+              bullet
+            );
+          }
+        });
+    } 
+       function updateEnemies() {
+      enemies
+        .slice()
+        .forEach((enemy) => {
+          const heroCenter =
+            heroX +
+            HERO_WIDTH / 2;
+
+          const enemyCenter =
+            enemy.x +
+            enemy.width / 2;
+
+          if (
+            enemyCenter <
+            heroCenter
+          ) {
+            enemy.x +=
+              enemy.speed * 0.35;
+          } else {
+            enemy.x -=
+              enemy.speed * 0.35;
+          }
+
+          enemy.y +=
+            enemy.speed;
+
+          enemy.element.style.left =
+            enemy.x + "px";
+
+          enemy.element.style.top =
+            enemy.y + "px";
+
+          if (
+            elementsTouch(
+              hero,
+              enemy.element
+            )
+          ) {
+            if (ultimateActive) {
+              defeatEnemy(
+                enemy
+              );
+            } else {
+              takeDamage(
+                enemy.damage
+              );
+
+              removeEnemy(
+                enemy
+              );
+            }
+          } else if (
+            enemy.y >
+            game.clientHeight + 100
+          ) {
+            removeEnemy(
+              enemy
+            );
+          }
+        });
+    }
+
+
+    function updateFallingObjects() {
+      fallingObjects
+        .slice()
+        .forEach((object) => {
+          object.y +=
+            object.speed;
+
+          object.element.style.left =
+            object.x + "px";
+
+          object.element.style.top =
+            object.y + "px";
+
+          if (
+            elementsTouch(
+              hero,
+              object.element
+            )
+          ) {
+            collectObject(
+              object
+            );
+          } else if (
+            object.y >
+            game.clientHeight + 50
+          ) {
+            removeFallingObject(
+              object
+            );
+          }
+        });
+    }
+
+
+    function defeatEnemy(enemy) {
+      if (
+        !enemy.element.isConnected
+      ) {
+        return;
+      }
+
+      score +=
+        enemy.rewardScore;
+
+      coins +=
+        enemy.rewardCoins;
+
+      kills++;
+
+      createEffect(
+        enemy.x,
+        enemy.y,
+        "💥 +" +
+        enemy.rewardScore
+      );
+
+      if (
+        Math.random() < 0.22
+      ) {
+        createPowerUp(
+          enemy.x,
+          enemy.y
+        );
+      }
+
+      removeEnemy(enemy);
+
+      updateLevel();
+      updateHud();
+    }
+
+
+    function collectObject(object) {
+      if (
+        object.type === "coin"
+      ) {
+        coins++;
+        score++;
+
+        createEffect(
+          object.x,
+          object.y,
+          "+1"
+        );
+
+        message.textContent =
+          "🪙 Legend Coin!";
+      } else {
+        usePowerUp(
+          object.powerType
+        );
+
+        createEffect(
+          object.x,
+          object.y,
+          object.powerType
+        );
+      }
+
+      removeFallingObject(
+        object
+      );
+
+      updateLevel();
+      updateHud();
+    }
+
+
+    function usePowerUp(type) {
+      if (type === "❤️") {
+        lives =
+          Math.min(
+            MAX_LIVES,
+            lives + 1
+          );
+
+        message.textContent =
+          "❤️ Extra liv!";
+      }
+
+      if (type === "⚡") {
+        score =
+          Math.max(
+            score,
+            DASH_COST
+          );
+
+        message.textContent =
+          "⚡ Dash redo!";
+      }
+
+      if (type === "🌪️") {
+        score =
+          Math.max(
+            score,
+            ULTIMATE_COST
+          );
+
+        message.textContent =
+          "🌪️ Ultimate redo!";
+      }
+
+      if (type === "🔫") {
+        ammo =
+          MAX_AMMO;
+
+        reloading =
+          false;
+
+        message.textContent =
+          "🔫 Full ammunition!";
+      }
+
+      if (type === "🛡️") {
+        invincible =
+          true;
+
+        message.textContent =
+          "🛡️ Sköld i 5 sekunder!";
+
+        setTimeout(() => {
+          if (!ultimateActive) {
+            invincible =
+              false;
+          }
+        }, 5000);
+      }
+    }
+
+
+    function takeDamage(amount) {
+      if (
+        !running ||
+        invincible
+      ) {
+        return;
+      }
+
+      lives -= amount;
+
+      if (lives < 0) {
+        lives = 0;
+      }
+
+      invincible = true;
+
+      hero.classList.add(
+        "hit"
+      );
+
+      game.classList.add(
+        "screen-shake"
+      );
+
+      message.textContent =
+        amount === 3
+          ? "💥 Tanken tog 3 liv!"
+          : "Aero förlorade 1 liv!";
+
+      updateHud();
+
+      setTimeout(() => {
+        hero.classList.remove(
+          "hit"
+        );
+
+        game.classList.remove(
+          "screen-shake"
+        );
+      }, 350);
+
+      setTimeout(() => {
+        if (!ultimateActive) {
+          invincible =
+            false;
+        }
+      }, 900);
+
+      if (lives <= 0) {
+        endGame();
+      }
+    }
+
+
+    function updateLevel() {
+      const oldLevel =
+        level;
+
+      if (score >= 150) {
+        level = 3;
+      } else if (score >= 80) {
+        level = 2;
+      } else {
+        level = 1;
+      }
+
+      if (
+        level > oldLevel
+      ) {
+        message.textContent =
+          level === 2
+            ? "🎉 NIVÅ 2!"
+            : "🔥 NIVÅ 3!";
+      }
+    }
+
+
+    function updateHud() {
+      scoreDisplay.textContent =
+        String(score);
+
+      coinDisplay.textContent =
+        String(coins);
+
+      levelDisplay.textContent =
+        String(level);
+
+      healthCount.textContent =
+        lives + "/" + MAX_LIVES;
+
+      healthFill.style.width =
+        (
+          lives /
+          MAX_LIVES *
+          100
+        ) + "%";
+
+      const ultimateValue =
+        Math.min(
+          100,
+          score /
+          ULTIMATE_COST *
+          100
+        );
+
+      ultimateFill.style.width =
+        ultimateValue + "%";
+
+      ultimatePercent.textContent =
+        Math.floor(
+          ultimateValue
+        ) + "%";
+
+      dashButton.disabled =
+        score < DASH_COST;
+
+      ultimateButton.disabled =
+        score < ULTIMATE_COST ||
+        ultimateActive;
+
+      if (reloading) {
+        ammoDisplay.textContent =
+          "RELOAD...";
+      } else {
+        ammoDisplay.textContent =
+          "●".repeat(ammo) +
+          "○".repeat(
+            MAX_AMMO - ammo
+          );
+      }
+    }
+
+
+    function elementsTouch(
+      firstElement,
+      secondElement
+    ) {
+      const first =
+        firstElement
+          .getBoundingClientRect();
+
+      const second =
+        secondElement
+          .getBoundingClientRect();
+
+      return (
+        first.left <
+        second.right &&
+
+        first.right >
+        second.left &&
+
+        first.top <
+        second.bottom &&
+
+        first.bottom >
+        second.top
+      );
+    }
+
+
+    function createEffect(
+      positionX,
+      positionY,
+      text
+    ) {
+      const effect =
+        document.createElement("div");
+
+      effect.className =
+        "effect";
+
+      effect.textContent =
+        text;
+
+      effect.style.left =
+        positionX + "px";
+
+      effect.style.top =
+        positionY + "px";
+
+      game.appendChild(
+        effect
+      );
+
+      setTimeout(() => {
+        effect.remove();
+      }, 700);
+    }
+
+
+    function removeEnemy(enemy) {
+      if (
+        enemy.element.isConnected
+      ) {
+        enemy.element.remove();
+      }
+
+      const index =
+        enemies.indexOf(enemy);
+
+      if (index >= 0) {
+        enemies.splice(
+          index,
+          1
+        );
+      }
+    }
+
+
+    function removeBullet(bullet) {
+      if (
+        bullet.element.isConnected
+      ) {
+        bullet.element.remove();
+      }
+
+      const index =
+        bullets.indexOf(bullet);
+
+      if (index >= 0) {
+        bullets.splice(
+          index,
+          1
+        );
+      }
+    }
+
+
+    function removeFallingObject(
+      object
+    ) {
+      if (
+        object.element.isConnected
+      ) {
+        object.element.remove();
+      }
+
+      const index =
+        fallingObjects.indexOf(
+          object
+        );
+
+      if (index >= 0) {
+        fallingObjects.splice(
+          index,
+          1
+        );
+      }
+    }
+
+
+    function removeAllObjects() {
+      enemies
+        .slice()
+        .forEach(removeEnemy);
+
+      bullets
+        .slice()
+        .forEach(removeBullet);
+
+      fallingObjects
+        .slice()
+        .forEach(
+          removeFallingObject
+        );
+
+      document
+        .querySelectorAll(
+          ".effect"
+        )
+        .forEach((effect) => {
+          effect.remove();
+        });
+    }
+
+
+    function stopGameTimers() {
+      clearInterval(
+        enemyTimer
+      );
+
+      clearInterval(
+        coinTimer
+      );
+
+      clearInterval(
+        scoreTimer
+      );
+
+      enemyTimer = null;
+      coinTimer = null;
+      scoreTimer = null;
+
+      if (
+        animationFrame !== null
+      ) {
+        cancelAnimationFrame(
+          animationFrame
+        );
+
+        animationFrame = null;
+      }
+    }
+
+
+    function endGame() {
+      if (!running) {
+        return;
+      }
+
+      running = false;
+
+      stopGameTimers();
+
+      if (score > highScore) {
+        highScore = score;
+
+        localStorage.setItem(
+          "legendArenaEasy4HighScore",
+          String(highScore)
+        );
+      }
+
+      totalCoins += coins;
+
+      localStorage.setItem(
+        "legendArenaEasy4Coins",
+        String(totalCoins)
+      );
+
+      finalScore.textContent =
+        String(score);
+
+      finalLevel.textContent =
+        String(level);
+
+      finalCoins.textContent =
+        String(coins);
+
+      finalKills.textContent =
+        String(kills);
+
+      highScoreDisplay.textContent =
+        String(highScore);
+
+      menuHighScore.textContent =
+        String(highScore);
+
+      menuTotalCoins.textContent =
+        String(totalCoins);
+
+      removeAllObjects();
+
+      showScreen(
+        gameOverScreen
+      );
+    }
+
+
+    function returnToMenu() {
+      running = false;
+
+      stopGameTimers();
+      removeAllObjects();
+
+      menuHighScore.textContent =
+        String(highScore);
+
+      menuTotalCoins.textContent =
+        String(totalCoins);
+
+      showScreen(
+        menuScreen
+      );
+    }
+
+
+    function addPressAction(
+      element,
+      action
+    ) {
+      element.addEventListener(
+        "pointerdown",
+        (event) => {
+          event.preventDefault();
+          action();
+        }
+      );
+    }
+
+
+    playButton.addEventListener(
+      "click",
+      startGame
+    );
+
+    instructionsButton.addEventListener(
+      "click",
+      () => {
+        showScreen(
+          instructionsScreen
+        );
+      }
+    );
+
+    instructionsBackButton.addEventListener(
+      "click",
+      () => {
+        showScreen(
+          menuScreen
+        );
+      }
+    );
+
+    restartButton.addEventListener(
+      "click",
+      startGame
+    );
+
+    homeButton.addEventListener(
+      "click",
+      returnToMenu
+    );
+
+    addPressAction(
+      leftButton,
+      () => moveHero(-1)
+    );
+
+    addPressAction(
+      rightButton,
+      () => moveHero(1)
+    );
+
+    addPressAction(
+      dashButton,
+      useDash
+    );
+
+    addPressAction(
+      ultimateButton,
+      activateUltimate
+    );
+
+    addPressAction(
+      fireButton,
+      fireWeapon
+    );
+
+
+    window.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key ===
+          "ArrowLeft"
+        ) {
+          moveHero(-1);
+        }
+
+        if (
+          event.key ===
+          "ArrowRight"
+        ) {
+          moveHero(1);
+        }
+
+        if (
+          event.code ===
+          "Space"
+        ) {
+          event.preventDefault();
+          fireWeapon();
+        }
+
+        if (
+          event.key.toLowerCase() ===
+          "d"
+        ) {
+          useDash();
+        }
+
+        if (
+          event.key.toLowerCase() ===
+          "u"
+        ) {
+          activateUltimate();
+        }
+      }
+    );
+
+
+    window.addEventListener(
+      "resize",
+      () => {
+        if (running) {
+          resetHero();
+        }
+      }
+    );
+
+
+    menuHighScore.textContent =
+      String(highScore);
+
+    menuTotalCoins.textContent =
+      String(totalCoins);
+
+  </script>
+
+</body>
+</html> 
